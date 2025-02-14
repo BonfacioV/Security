@@ -1,0 +1,842 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Security+ Quiz - Phalaborwa Cohort</title>
+  <!-- Google Fonts -->
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet" />
+  <!-- FontAwesome Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" />
+
+<style>
+    body {
+      font-family: 'Poppins', sans-serif;
+      margin: 1rem;
+      background-color: #001f3d; /* Dark navy blue background */
+      color: #fff; /* White text color */
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      min-height: 100vh;
+    }
+    #quiz-container {
+      background: #fff;
+      padding: 1.5rem;
+      border-radius: 10px;
+      max-width: 900px; /* Increased max-width to fit more content */
+      width: 95%; /* Use 95% of the screen width */
+      margin: auto;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+      display: none;
+      color: #001f3d; /* Dark text for quiz container */
+    }
+    .option {
+      display: block;
+      margin: 0.5rem 0;
+      padding: 0.75rem;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+      cursor: pointer;
+      transition: background-color 0.3s ease;
+    }
+    .option.selected { 
+  background-color: #e0f0ff; 
+  border-color: #007bff; 
+}
+    .option:hover { background-color: #f0f0f0; }
+    #result { font-weight: bold; margin-top: 1rem; }
+    #explanation { display: none; margin-top: 1rem; padding: 0.75rem; background: #e9ecef; border-left: 5px solid #007bff; border-radius: 5px; }
+    button {
+      margin-top: 1rem;
+      padding: 0.75rem 1.5rem;
+      border: none;
+      background-color: #001f3d; /* Navy blue */
+      color: white;
+      border-radius: 5px;
+      cursor: pointer;
+      transition: background-color 0.3s ease;
+    }
+    button:hover { background-color: #003366; }
+    .nav-buttons { margin-top: 2rem; display: flex; gap: 1rem; justify-content: center; }
+    #tracker {
+      margin-bottom: 1rem;
+      font-weight: bold;
+      color: #555;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap; /* Allow tracker items to wrap on smaller screens */
+      gap: 0.5rem; /* Add gap between tracker items */
+    }
+    #name-popup {
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      background: #fff;
+      padding: 2rem;
+      border-radius: 10px;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+      text-align: center;
+      color: #001f3d;
+    }
+    #name-popup input {
+      padding: 0.75rem;
+      margin-bottom: 1rem;
+      width: 80%;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+      text-align: center;
+      font-size: 1rem;
+    }
+    #name-popup button {
+      background-color: #28a745;
+      font-size: 1rem;
+    }
+    #name-popup button:hover {
+      background-color: #218838;
+    }
+    #customize-test {
+      margin-top: 1rem;
+      display: none;
+    }
+    #customize-test label {
+      display: block;
+      margin: 0.5rem 0;
+    }
+    #customize-test select {
+      padding: 0.5rem;
+      width: 100%;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+    }
+    img {
+      max-width: 100%;
+      height: auto;
+      margin: 1rem 0;
+      border: 1px solid #ddd;
+      border-radius: 5px;
+    }
+    footer {
+      text-align: center;
+      margin-top: 2rem;
+      color: #fff;
+      font-size: 0.9rem;
+    }
+    footer a {
+      color: #007bff;
+      text-decoration: none;
+    }
+    footer a:hover {
+      text-decoration: underline;
+    }
+    /* Timer and Progress Bar Styles */
+    #timer {
+      font-size: 1.2rem;
+      font-weight: bold;
+      color: #d9534f; /* Red color for urgency */
+      margin-bottom: 1rem;
+    }
+    #progress-bar {
+      width: 100%;
+      height: 10px;
+      background-color: #e9ecef;
+      border-radius: 5px;
+      margin-bottom: 1rem;
+      overflow: hidden;
+    }
+    #progress {
+      height: 100%;
+      background-color: #007bff;
+      width: 0%;
+      transition: width 0.5s ease;
+    }
+    .info-icon {
+      margin-left: 0.5rem;
+      color: #007bff;
+      cursor: pointer;
+    }
+    .info-message {
+      display: none;
+      background-color: #f9f9f9;
+      border: 1px solid #ccc;
+      padding: 0.5rem;
+      border-radius: 5px;
+      margin-top: 0.5rem;
+      color: #001f3d;
+    }
+    .question-title {
+      font-size: 1.1rem; /* Reduced font size for questions */
+    }
+    /* Mobile-Friendly Styles */
+    @media only screen and (max-width: 600px) {
+      body {
+        margin: 0.5rem;
+      }
+      #quiz-container {
+        padding: 1rem;
+        max-width: 100%; /* Use full width on small screens */
+        margin: auto;
+        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+      }
+      h2#question-title {
+        font-size: 1rem;
+      }
+      .option {
+        padding: 0.5rem;
+        font-size: 0.9rem;
+      }
+      button {
+        padding: 0.5rem 1rem;
+        font-size: 0.9rem;
+      }
+      #timer {
+        font-size: 1rem;
+      }
+      #progress-bar {
+        height: 8px;
+      }
+      #tracker {
+        font-size: 0.9rem; /* Smaller font size for tracker on mobile */
+      }
+    }
+  </style>
+
+</head>
+<body>
+  <!-- Name Popup -->
+  <div id="name-popup">
+    <h2>Sec+ Quiz - Phalaborwa Cohort</h2>
+    <p>Enter your name and the default password to start:</p>
+    <input type="text" id="user-name" placeholder="Your Name" />
+    <input type="password" id="user-password" placeholder="Password" />
+    <button id="customize-toggle">Customize Test</button>
+    <div id="customize-test">
+      <label for="question-count">Number of Questions:</label>
+      <select id="question-count">
+        <!-- Options will be dynamically populated -->
+      </select>
+      <label for="timer-duration">Test Duration:</label>
+      <select id="timer-duration">
+        <option value="1800">30 minutes</option>
+        <option value="3600">60 minutes</option>
+        <option value="5400">90 minutes</option>
+        <option value="7200">120 minutes</option>
+        <option value="9000">150 minutes</option>
+        <option value="0">No timer</option>
+      </select>
+    </div>
+    <button id="begin-quiz">Start Test</button>
+    <p id="password-error" style="color: red; display: none;">Incorrect password. Ask Bonny for the password if you're unsure!</p>
+  </div>
+
+  <!-- Quiz Container -->
+  <div id="quiz-container" style="display: none;">
+    <div id="quiz-content">
+      <div id="tracker">
+        <span id="user-greeting"></span>
+        <span id="correct-count">Correct: 0</span>
+        <span id="wrong-count">Wrong: 0</span>
+        <span id="questions-left">Questions Left: 0</span>
+        <span id="attempts">Attempts: 0</span>
+        <i class="fas fa-info-circle info-icon" title="Click for info"></i>
+        <div class="info-message">Only the first answer submission counts. Changing an answer won't update the score.</div>
+      </div>
+      <div id="timer">Time Left: 00:00</div>
+      <div id="progress-bar">
+        <div id="progress"></div>
+      </div>
+      <h2 id="question-title" class="question-title"></h2>
+      <div id="options"></div>
+      <button id="submit-answer">Submit Answer</button>
+      <p id="result"></p>
+      <button id="toggle-explanation" style="display:none;">Show Explanation</button>
+      <div id="explanation"></div>
+      <div class="nav-buttons">
+        <button id="prev-question"><i class="fas fa-arrow-left"></i> Previous</button>
+        <button id="next-question">Next <i class="fas fa-arrow-right"></i></button>
+      </div>
+    </div>
+
+    <!-- Results and Control Buttons -->
+    <button id="restart-quiz" style="display:none;">Restart Test</button>
+    <button id="end-quiz" style="display:none;">End Test</button>
+    <button id="home-btn" style="display:none;">Home</button>
+    <button id="print-results" style="display:none;">Print Results</button>
+    <div id="result-data" style="display:none;"></div>
+  </div>
+
+  <!-- Footer -->
+  <footer>
+    <p>Created by Bonny Venacio | Sec+ Quiz for the Phalaborwa CS Cohort</p>
+  </footer>
+
+  <script>
+    // Prevent right-click and text selection
+    document.addEventListener("contextmenu", (e) => e.preventDefault());
+    document.addEventListener("selectstart", (e) => e.preventDefault());
+
+    // Quiz Data (example with 20 questions)
+    const quizData = [
+  {
+    question: "Question 1:\nWhich of the following threat actors is the most likely to be hired by a foreign government to attack critical systems located in other countries?",
+    options: [
+      "A. Hacktivist",
+      "B. Whistleblower",
+      "C. Organized crime",
+      "D. Unskilled attacker"
+    ],
+    correct: 2,
+    explanation: "Organized crime groups often have the resources, expertise, and networks to carry out sophisticated cyber attacks on behalf of governments or other entities for financial gain or political motives."
+  },
+  {
+    question: "Question 2:\nAn employee receives a text message that appears to have been sent by the payroll department and is asking for credential verification. Which of the following social engineering techniques are being attempted? (Choose two.)",
+    options: [
+      "A. Typosquatting",
+      "B. Phishing",
+      "C. Impersonation",
+      "D. Vishing",
+      "E. Smishing",
+      "F. Misinformation"
+    ],
+    correct: [2, 4],
+    explanation: "The text message is an example of impersonation (pretending to be from payroll) and smishing (phishing via text messages)."
+  },
+  {
+    question: "Question 3:\nAn organization is leveraging a VPN between its headquarters and a branch location. Which of the following is the VPN protecting?",
+    options: [
+      "A. Data in use",
+      "B. Data in transit",
+      "C. Geographic restrictions",
+      "D. Data sovereignty"
+    ],
+    correct: 1,
+    explanation: "Data in transit is the correct answer because a VPN is specifically designed to protect data as it moves between two locations."
+  },
+  {
+    question: "Question 4:\nAfter reviewing the following vulnerability scanning report:<br><img src='https://www.actual4test.com/uploads/imgs/SY0-701-9121251f3df9e47fdf84c8f45ad2bbec.jpg' alt='Vulnerability Scanning Report'><br><br>A security analyst performs the following test:<br><img src='https://www.actual4test.com/uploads/imgs/SY0-701-60fc70d638985187076287d2954a4fba.jpg' alt='Test Report'><br><br>Which of the following would the security analyst conclude for this reported vulnerability?",
+    options: [
+      "A. It is a false positive.",
+      "B. A rescan is required.",
+      "C. It is considered noise.",
+      "D. Compensating controls exist."
+    ],
+    correct: 3,
+    explanation: "The question is asking 'what can be concluded'. We know that telnet is unsafe by default. We also know that there is an option for encryption as said by the last line 'telnet server supports encryption'. Thus the answer must be that we can conclude Compensating Controls Exist. Answer is D."
+  },
+  {
+    question: "Question 5:\nAn organization disabled unneeded services and placed a firewall in front of a business-critical legacy system. Which of the following best describes the actions taken by the organization?",
+    options: [
+      "A. Exception",
+      "B. Segmentation",
+      "C. Risk transfer",
+      "D. Compensating controls"
+    ],
+    correct: 3,
+    explanation: "The actions taken by the organization—disabling unneeded services and placing a firewall in front of a business-critical legacy system—are examples of compensating controls."
+  },
+  {
+    question: "Question 6:\nA security consultant needs secure, remote access to a client environment. Which of the following should the security consultant most likely use to gain access?",
+    options: [
+      "A. EAP",
+      "B. DHCP",
+      "C. IPSec",
+      "D. NAT"
+    ],
+    correct: 2,
+    explanation: "IPSec is ideal for establishing a secure connection between a security consultant’s device and a client’s network, ensuring confidentiality, integrity, and authenticity of data transmitted over the connection."
+  },
+  {
+    question: "Question 7:\nWhich of the following should a systems administrator use to ensure an easy deployment of resources within the cloud provider?",
+    options: [
+      "A. Software as a service",
+      "B. Infrastructure as code",
+      "C. Internet of Things",
+      "D. Software-defined networking"
+    ],
+    correct: 1,
+    explanation: "IaC (Infrastructure as Code) provides a means of automating deployment of infrastructure as a code."
+  },
+  {
+    question: "Question 8:\nAfter a security awareness training session, a user called the IT help desk and reported a suspicious call. The suspicious caller stated that the Chief Financial Officer wanted credit card information in order to close an invoice. Which of the following topics did the user recognize from the training?",
+    options: [
+      "A. Insider threat",
+      "B. Email phishing",
+      "C. Social engineering",
+      "D. Executive whaling"
+    ],
+    correct: 2,
+    explanation: "Social Engineering involves manipulating individuals into divulging confidential information. The caller was pretending to be the CFO, which fits the description of social engineering."
+  },
+  {
+    question: "Question 9:\nA security administrator is deploying a DLP solution to prevent the exfiltration of sensitive customer data. Which of the following should the administrator do first?",
+    options: [
+      "A. Block access to cloud storage websites.",
+      "B. Create a rule to block outgoing email attachments.",
+      "C. Apply classifications to the data.",
+      "D. Remove all user permissions from shares on the file server."
+    ],
+    correct: 2,
+    explanation: "Applying classifications to the data is the first step because it establishes a foundational understanding of what data is sensitive and needs protection."
+  },
+  {
+    question: "Question 10:\nAn administrator assists the legal and compliance team with ensuring information about customer transactions is archived for the proper time period. Which of the following data policies is the administrator carrying out?",
+    options: [
+      "A. Compromise",
+      "B. Retention",
+      "C. Analysis",
+      "D. Transfer",
+      "E. Inventory"
+    ],
+    correct: 1,
+    explanation: "The administrator is ensuring that transaction data is archived for the appropriate duration, which aligns with retention policies that dictate how long data must be kept."
+  },
+  {
+    question: "Question 11:\nA company is working with a vendor to perform a penetration test. Which of the following includes an estimate about the number of hours required to complete the engagement?",
+    options: [
+      "A. SOW",
+      "B. BPA",
+      "C. SLA",
+      "D. NDA"
+    ],
+    correct: 0,
+    explanation: "The SOW (Statement of Work) includes an estimate of the number of hours required to conduct the test, along with details of the testing methodologies and deliverables."
+  },
+  {
+    question: "Question 12:\nA Chief Information Security Officer (CISO) wants to explicitly raise awareness about the increase of ransomware-as-a-service in a report to the management team. Which of the following best describes the threat actor in the CISO’s report?",
+    options: [
+      "A. Insider threat",
+      "B. Hacktivist",
+      "C. Nation-state",
+      "D. Organized crime"
+    ],
+    correct: 3,
+    explanation: "Organized crime is the correct answer because ransomware-as-a-service operations are typically conducted by criminal organizations seeking to monetize cyberattacks."
+  },
+  {
+    question: "Question 13:\nSeveral employees received a fraudulent text message from someone claiming to be the Chief Executive Officer (CEO). The message stated:\n'I’m in an airport right now with no access to email. I need you to buy gift cards for employee recognition awards. Please send the gift cards to the following email address.'\nWhich of the following are the best responses to this situation? (Choose two).",
+    options: [
+      "A. Cancel current employee recognition gift cards.",
+      "B. Add a smishing exercise to the annual company training.",
+      "C. Issue a general email warning to the company.",
+      "D. Have the CEO change phone numbers.",
+      "E. Conduct a forensic investigation on the CEO’s phone.",
+      "F. Implement mobile device management."
+    ],
+    correct: [1, 2],
+    explanation: "Issuing a general email warning to the company and adding a smishing exercise to annual training are both appropriate responses to raise awareness and prevent future attacks."
+  },
+  {
+    question: "Question 14:\nWhich of the following practices would be best to prevent an insider from introducing malicious code into a company's development process?",
+    options: [
+      "A. Code scanning for vulnerabilities",
+      "B. Open-source component usage",
+      "C. Quality assurance testing",
+      "D. Peer review and approval"
+    ],
+    correct: 3,
+    explanation: "Peer review and approval ensures that other developers or experts review the code before it is deployed or released, which can prevent malicious code from being introduced."
+  },
+  {
+    question: "Question 15:\nWhich of the following can best protect against an employee inadvertently installing malware on a company system?",
+    options: [
+      "A. Host-based firewall",
+      "B. System isolation",
+      "C. Least privilege",
+      "D. Application allow list"
+    ],
+    correct: 3,
+    explanation: "Using an application allow list ensures that only approved applications can run, preventing employees from inadvertently running malicious software."
+  },
+  {
+    question: "Question 16:\nA company is adding a clause to its AUP that states employees are not allowed to modify the operating system on mobile devices. Which of the following vulnerabilities is the organization addressing?",
+    options: [
+      "A. Cross-site scripting",
+      "B. Buffer overflow",
+      "C. Jailbreaking",
+      "D. Side loading"
+    ],
+    correct: 2,
+    explanation: "Jailbreaking involves modifying the operating system on mobile devices, which the company's Acceptable Use Policy aims to prevent."
+  },
+  {
+    question: "Question 17:\nWhich of the following would be the best ways to ensure only authorized personnel can access a secure facility? (Choose two.)",
+    options: [
+      "A. Fencing",
+      "B. Video surveillance",
+      "C. Badge access",
+      "D. Access control vestibule",
+      "E. Sign-in sheet",
+      "F. Sensor"
+    ],
+    correct: [2, 3],
+    explanation: "Badge access and access control vestibules are the best options for ensuring only authorized personnel can access a secure facility."
+  },
+  {
+    question: "Question 18:\nAn organization would like to store customer data on a separate part of the network that is not accessible to users on the main corporate network. Which of the following should the administrator use to accomplish this goal?",
+    options: [
+      "A. Segmentation",
+      "B. Isolation",
+      "C. Patching",
+      "D. Encryption"
+    ],
+    correct: 0,
+    explanation: "Segmentation involves dividing the network into distinct sections, allowing sensitive data to be isolated from the rest of the network."
+  },
+  {
+    question: "Question 19:\nWhich of the following is the most common data loss path for an air-gapped network?",
+    options: [
+      "A. Bastion host",
+      "B. Unsecured Bluetooth",
+      "C. Unpatched OS",
+      "D. Removable devices"
+    ],
+    correct: 3,
+    explanation: "Removable devices like USB drives can still be used to transfer data in and out of an air-gapped network, posing a significant data loss risk."
+  },
+  {
+    question: "Question 20:\nMalware spread across a company's network after an employee visited a compromised industry blog. Which of the following best describes this type of attack?",
+    options: [
+      "A. Impersonation",
+      "B. Disinformation",
+      "C. Watering-hole",
+      "D. Smishing"
+    ],
+    correct: 2,
+    explanation: "A watering-hole attack involves compromising a website frequently visited by the target organization. Employees visiting the site inadvertently download malware, which spreads across the network."
+  }
+];
+    // Motivational messages arrays
+    const motivationalMessagesPass = [
+      "Halala, {user}! You're on your way to becoming our new top student!",
+      "Dasss Ryt, {user}! Your hard work paid off shem!",
+      "Amazing effort, {user}! Keep up the excellent work!",
+      "Well done, {user}! You're shining bright sana!",
+      "Fantastic, {user}! You're setting the bar high!",
+      "Outstanding, {user}! Your dedication is inspiring!",
+      "Ayeye, {user}! Success is yours!",
+      "Ndi zwone, {user}! You're making great strides!",
+      "Hi Swona, {user}! Keep reaching for the stars!",
+      "Ke sona seo, {user}! You're in-line for greatness!"
+    ];
+
+    const motivationalMessagesFail = [
+      "Ska wara, {user}, you'll do lekka next time!",
+      "Every attempt is progress, {user}!",
+      "Stay focused, {user}; success is just around the corner!",
+      "Keep your chin up, {user}! Learn and improve.",
+      "Every mistake is a lesson, {user}. Keep going!",
+      "Don't give up, {user}! Better luck next time.",
+      "Keep pushing, {user}! Success will come with persistence.",
+      "Stay motivated, {user}! You're learning every step of the way.",
+      "Keep striving, {user}! Your effort will pay off.",
+      "Chin up, {user}! One more attempt and you'll do proper shem!"
+    ];
+
+    // Global variables
+    let currentQuestion = 0;
+    let selectedOptions = []; // Array to track multiple selections
+    let correctAnswers = 0;
+    let wrongAnswers = 0;
+    let userName = "";
+    let totalQuestions = 0;
+    let timeLeft = 0;
+    let timerInterval;
+    let attempts = 1;
+    let answeredQuestions = new Set();
+    let wrongQuestionNumbers = []; // Track wrong question numbers
+
+    // DOM references
+    const questionTitle = document.getElementById("question-title");
+    const optionsContainer = document.getElementById("options");
+    const resultParagraph = document.getElementById("result");
+    const explanationDiv = document.getElementById("explanation");
+    const submitBtn = document.getElementById("submit-answer");
+    const prevBtn = document.getElementById("prev-question");
+    const nextBtn = document.getElementById("next-question");
+    const userGreeting = document.getElementById("user-greeting");
+    const correctCount = document.getElementById("correct-count");
+    const wrongCount = document.getElementById("wrong-count");
+    const questionsLeftDisplay = document.getElementById("questions-left");
+    const namePopup = document.getElementById("name-popup");
+    const quizContainer = document.getElementById("quiz-container");
+    const passwordError = document.getElementById("password-error");
+    const endQuizBtn = document.getElementById("end-quiz");
+    const restartBtn = document.getElementById("restart-quiz");
+    const homeBtn = document.getElementById("home-btn");
+    const resultDataDiv = document.getElementById("result-data");
+    const attemptsDisplay = document.getElementById("attempts");
+    const customizeTestDiv = document.getElementById("customize-test");
+    const questionCountSelect = document.getElementById("question-count");
+    const timerDurationSelect = document.getElementById("timer-duration");
+    const timerDisplay = document.getElementById("timer");
+
+    // Toggle Customize Test section
+    document.getElementById("customize-toggle").addEventListener("click", () => {
+      customizeTestDiv.style.display = customizeTestDiv.style.display === "none" ? "block" : "none";
+    });
+
+    // Populate question count options
+    function populateQuestionCount() {
+      questionCountSelect.innerHTML = "";
+      const maxQuestions = quizData.length;
+      const options = [10, 20, 30, 50, 100].filter((num) => num <= maxQuestions);
+      options.forEach((num) => {
+        const option = document.createElement("option");
+        option.value = num;
+        option.textContent = num;
+        questionCountSelect.appendChild(option);
+      });
+      questionCountSelect.value = options[0];
+    }
+
+    // Start quiz
+    document.getElementById("begin-quiz").addEventListener("click", () => {
+      userName = document.getElementById("user-name").value.trim();
+      const password = document.getElementById("user-password").value.trim();
+      totalQuestions = parseInt(questionCountSelect.value);
+      timeLeft = parseInt(timerDurationSelect.value);
+
+      if (userName === "") {
+        alert("Enter your name first!");
+        return;
+      }
+
+      if (password !== "Bonny1166!") {
+        passwordError.style.display = "block";
+        return;
+      }
+
+      passwordError.style.display = "none";
+      namePopup.style.display = "none";
+      quizContainer.style.display = "block";
+      userGreeting.textContent = `Hi, ${userName}!`;
+      loadQuestion(currentQuestion);
+      startTimer();
+    });
+
+    // Load question function
+    function loadQuestion(index) {
+      selectedOptions = []; // Reset selected options for the new question
+      resultParagraph.textContent = "";
+      explanationDiv.style.display = "none";
+
+      const questionObj = quizData[index];
+      questionTitle.innerHTML = questionObj.question;
+      explanationDiv.textContent = questionObj.explanation;
+
+      // Clear the options container
+      optionsContainer.innerHTML = "";
+
+      // Add options for the current question
+      questionObj.options.forEach((option, i) => {
+        const optionDiv = document.createElement("div");
+        optionDiv.className = "option";
+        optionDiv.textContent = option;
+        optionDiv.addEventListener("click", () => {
+          optionDiv.classList.toggle("selected"); // Toggle the 'selected' class
+          const index = selectedOptions.indexOf(i);
+          if (index === -1) {
+            selectedOptions.push(i); // Add to selected options
+          } else {
+            selectedOptions.splice(index, 1); // Remove from selected options
+          }
+        });
+        optionsContainer.appendChild(optionDiv);
+      });
+
+      questionsLeftDisplay.textContent = `Question ${index + 1} of ${totalQuestions}`;
+
+      // Show End Test button and hide Next button on the last question
+      endQuizBtn.style.display = (index === totalQuestions - 1) ? "inline-block" : "none";
+      nextBtn.style.display = (index === totalQuestions - 1) ? "none" : "inline-block";
+
+      // Update progress bar
+      updateProgressBar();
+    }
+
+    // Update progress bar
+    function updateProgressBar() {
+      const progressPercentage = ((currentQuestion + 1) / totalQuestions) * 100;
+      document.getElementById('progress').style.width = `${progressPercentage}%`;
+    }
+
+    // Timer function
+    function startTimer() {
+      if (timeLeft <= 0) return;
+
+      timerInterval = setInterval(() => {
+        if (timeLeft <= 0) {
+          clearInterval(timerInterval);
+          alert("Time's up! Quiz completed.");
+          endQuiz();
+        } else {
+          timeLeft--;
+          const minutes = Math.floor(timeLeft / 60);
+          const seconds = timeLeft % 60;
+          timerDisplay.textContent = `Time Left: ${minutes}:${seconds.toString().padStart(2, '0')}`;
+        }
+      }, 1000);
+    }
+
+    // Submit answer logic
+    submitBtn.addEventListener("click", () => {
+      const questionObj = quizData[currentQuestion];
+
+      if (selectedOptions.length === 0) {
+        resultParagraph.textContent = "You haven't selected any answers.";
+        resultParagraph.style.color = "orange";
+        return;
+      }
+
+      if (answeredQuestions.has(currentQuestion)) {
+        resultParagraph.textContent = "You can only submit an answer once per question.";
+        resultParagraph.style.color = "orange";
+        return;
+      }
+
+      let isCorrect;
+      if (Array.isArray(questionObj.correct)) {
+        // Handle multiple correct answers
+        if (selectedOptions.length !== questionObj.correct.length) {
+          resultParagraph.textContent = `Please select exactly ${questionObj.correct.length} answers.`;
+          resultParagraph.style.color = "orange";
+          return;
+        }
+        // Check if all selected options match the correct answers
+        isCorrect = selectedOptions.every((option) => questionObj.correct.includes(option));
+      } else {
+        // Handle single correct answer
+        isCorrect = selectedOptions.length === 1 && selectedOptions[0] === questionObj.correct;
+      }
+
+      if (isCorrect) {
+        correctAnswers++;
+        resultParagraph.textContent = "Correct!";
+        resultParagraph.style.color = "green";
+      } else {
+        wrongAnswers++;
+        resultParagraph.textContent = "Incorrect.";
+        resultParagraph.style.color = "red";
+        wrongQuestionNumbers.push(currentQuestion + 1); // Track wrong question numbers
+      }
+
+      correctCount.textContent = `Correct: ${correctAnswers}`;
+      wrongCount.textContent = `Wrong: ${wrongAnswers}`;
+      explanationDiv.style.display = "block";
+      answeredQuestions.add(currentQuestion);
+    });
+
+    // End quiz and show results
+    endQuizBtn.addEventListener("click", () => {
+      const confirmEnd = confirm("Are you sure you want to end the test?");
+      if (!confirmEnd) return;
+
+      const scorePercentage = Math.round((correctAnswers / totalQuestions) * 100);
+      const passStatus = scorePercentage >= 90 ? "Pass" : "Fail";
+
+      // Get current date and time
+      const now = new Date();
+      const options = { 
+        weekday: 'short', 
+        year: 'numeric', 
+        month: 'short', 
+        day: 'numeric', 
+        hour: '2-digit', 
+        minute: '2-digit', 
+        hour12: true 
+      };
+      const testCompletedOn = now.toLocaleString('en-US', options);
+
+      // Random motivational message
+      let motivational;
+      if (passStatus === "Pass") {
+        motivational = motivationalMessagesPass[Math.floor(Math.random() * motivationalMessagesPass.length)];
+      } else {
+        motivational = motivationalMessagesFail[Math.floor(Math.random() * motivationalMessagesFail.length)];
+      }
+      motivational = motivational.replace("{user}", userName);
+
+      // Build result summary
+      let resultSummary = `CompTIA Sec+ Test Results\n\n`;
+      resultSummary += `Name: ${userName}\nScore: ${scorePercentage}% (${passStatus})\nCorrect Answers: ${correctAnswers}\nWrong Answers: ${wrongAnswers}\nAttempts: ${attempts}\n`;
+      resultSummary += `Test Completed on: ${testCompletedOn}\n\n`;
+
+      // Add wrong question numbers to results
+      if (wrongQuestionNumbers.length > 0) {
+        resultSummary += `Questions you got wrong: Question ${wrongQuestionNumbers.join(", ")}\n\n`;
+      }
+
+      resultSummary += motivational;
+
+      // Display result summary
+      document.getElementById('quiz-content').style.display = 'none';
+      resultDataDiv.style.display = "block";
+      resultDataDiv.style.whiteSpace = "pre-wrap";
+      resultDataDiv.style.backgroundColor = "#fff";
+      resultDataDiv.style.color = "#001f3d";
+      resultDataDiv.style.padding = "1rem";
+      resultDataDiv.style.marginTop = "1rem";
+      resultDataDiv.innerText = resultSummary;
+
+      // Show Restart, Home, and Print buttons
+      endQuizBtn.style.display = "none";
+      restartBtn.style.display = "inline-block";
+      homeBtn.style.display = "inline-block";
+      document.getElementById('print-results').style.display = "inline-block";
+    });
+
+    // Restart quiz
+    restartBtn.addEventListener("click", () => {
+      currentQuestion = 0;
+      correctAnswers = 0;
+      wrongAnswers = 0;
+      selectedOptions = []; // Reset selected options
+      answeredQuestions.clear();
+      wrongQuestionNumbers = []; // Reset wrong question numbers
+      attempts++;
+      attemptsDisplay.textContent = `Attempts: ${attempts}`;
+
+      // Reset Correct and Wrong counters
+      correctCount.textContent = `Correct: 0`;
+      wrongCount.textContent = `Wrong: 0`;
+
+      document.getElementById('quiz-content').style.display = 'block';
+      resultDataDiv.style.display = "none";
+      restartBtn.style.display = "none";
+      homeBtn.style.display = "none";
+      document.getElementById('print-results').style.display = "none";
+      loadQuestion(currentQuestion);
+    });
+
+    // Go home
+    homeBtn.addEventListener("click", () => {
+      window.location.reload();
+    });
+
+    // Print results
+    document.getElementById('print-results').addEventListener('click', () => {
+      window.print(); // Print the current screen
+    });
+
+    // Navigation logic
+    nextBtn.addEventListener("click", () => {
+      if (currentQuestion < totalQuestions - 1) {
+        currentQuestion++;
+        loadQuestion(currentQuestion);
+      }
+    });
+
+    prevBtn.addEventListener("click", () => {
+      if (currentQuestion > 0) {
+        currentQuestion--;
+        loadQuestion(currentQuestion);
+      }
+    });
+
+    // Initialize question count options
+    populateQuestionCount();
+  </script>
+</body>
+</html>
