@@ -211,9 +211,9 @@
     <p>Enter your name and the default password to start:</p>
     <input type="text" id="user-name" placeholder="Your Name" />
     <input type="password" id="user-password" placeholder="Password" />
-    <button id="customize-toggle">Customize Test</button>
+    <button id="customize-toggle">Click to Customise Test</button>
 <div id="customize-test">
-  <label for="question-count">Question Range:</label>
+  <label for="question-count">Select Question Range:</label>
   <select id="question-count">
     <!-- Options will be dynamically populated -->
   </select>
@@ -236,7 +236,7 @@
 </div>    
 
     <button id="begin-quiz">Start Test</button>
-    <p id="password-error" style="color: red; display: none;">Incorrect password. Ask Bonny for the password if you're unsure!</p>
+    <p id="password-error" style="color: red; display: none;">Incorrect password. Ask Bonfacio for the password if you're unsure!</p>
   </div>
 
   <!-- Quiz Container -->
@@ -277,7 +277,7 @@
 
   <!-- Footer -->
   <footer>
-    <p>Created by Bonny Venacio | Sec+ Quiz for the Phalaborwa CS Cohort</p>
+    <p>Created by Bonfacio Venacio | Sec+ Quiz for the Phalaborwa CS Cohort</p>
   </footer>
 
   <script>
@@ -6379,17 +6379,17 @@
     ];
 
     // Global variables
-    let currentQuestion = 0;
-    let selectedOptions = []; // Array to track multiple selections
-    let correctAnswers = 0;
-    let wrongAnswers = 0;
-    let userName = "";
-    let totalQuestions = 0;
-    let timeLeft = 0;
-    let timerInterval;
-    let attempts = 1;
-    let answeredQuestions = new Set();
-    let wrongQuestionNumbers = []; // Track wrong question numbers
+let currentQuestion = 0;
+let selectedOptions = []; // Array to track multiple selections
+let correctAnswers = 0;
+let wrongAnswers = 0;
+let userName = "";
+let totalQuestions = 0;
+let timeLeft = 0;
+let timerInterval;
+let attempts = 1;
+let answeredQuestions = new Set();
+let wrongQuestionNumbers = []; // Track wrong question numbers
 
     // DOM references
     const questionTitle = document.getElementById("question-title");
@@ -6421,7 +6421,7 @@
       customizeTestDiv.style.display = customizeTestDiv.style.display === "none" ? "block" : "none";
     });
 
-// Populate question count options
+  // Populate question count options
 function populateQuestionCount() {
   questionCountSelect.innerHTML = "";
   const options = [
@@ -6433,7 +6433,7 @@ function populateQuestionCount() {
     { value: 360, text: "Questions 301-360" },
     { value: 420, text: "Questions 361-420" },
     { value: 480, text: "Questions 421-480" },
-    { value: 546, text: "Questions 481-546 (Full Test)" },
+    { value: 546, text: "Questions 481-546" },
   ];
 
   options.forEach((option) => {
@@ -6456,7 +6456,7 @@ document.getElementById("begin-quiz").addEventListener("click", () => {
   const startQuestion = parseInt(range[0]);
   const endQuestion = parseInt(range[1]);
   totalQuestions = endQuestion - startQuestion + 1; // Update totalQuestions to the correct number of questions in the range
-  const startQuestionIndex = startQuestion - 1; // Calculate the correct starting index
+  startQuestionIndex = startQuestion - 1; // Calculate the correct starting index
   currentQuestion = 0; // Reset currentQuestion to 0 for the selected range
   timeLeft = parseInt(timerDurationSelect.value);
 
@@ -6486,7 +6486,7 @@ function loadQuestion(index, startQuestionIndex) {
   explanationDiv.style.display = "none";
 
   const questionObj = quizData[startQuestionIndex + index]; // Access the correct question
-  if (!questionObj) {
+  if (!questionObj || index >= totalQuestions) {
     console.error(`No question found at index ${startQuestionIndex + index}`);
     alert("No more questions in this range.");
     return;
@@ -6518,11 +6518,40 @@ function loadQuestion(index, startQuestionIndex) {
   questionsLeftDisplay.textContent = `Question ${index + 1} of ${totalQuestions}`;
 
   // Show End Test button and hide Next button on the last question
-  endQuizBtn.style.display = (index === totalQuestions - 1) ? "inline-block" : "none";
-  nextBtn.style.display = (index === totalQuestions - 1) ? "none" : "inline-block";
+  const selectedRange = parseInt(questionCountSelect.value);
+  if (selectedRange === 546 && index === totalQuestions - 1) {
+    endQuizBtn.style.display = "inline-block";
+    nextBtn.style.display = "none";
+  } else if (selectedRange === 546) {
+    endQuizBtn.style.display = "inline-block";
+    nextBtn.style.display = "inline-block";
+  } else {
+    endQuizBtn.style.display = (index === totalQuestions - 1) ? "inline-block" : "none";
+    nextBtn.style.display = (index === totalQuestions - 1) ? "none" : "inline-block";
+  }
 
   // Update progress bar
   updateProgressBar();
+}
+
+// Check answer function
+function checkAnswer(index, startQuestionIndex) {
+  const questionObj = quizData[startQuestionIndex + index];
+  const correctAnswer = questionObj.correctAnswer;
+  const userAnswer = selectedOptions[0];
+
+  if (userAnswer === correctAnswer) {
+    resultParagraph.textContent = "Correct!";
+    resultParagraph.style.color = "green";
+    correctAnswers++;
+  } else {
+    resultParagraph.textContent = `Incorrect! The correct answer is ${correctAnswer}.`;
+    resultParagraph.style.color = "red";
+    wrongAnswers++;
+  }
+
+  correctCount.textContent = `Correct: ${correctAnswers}`;
+  wrongCount.textContent = `Wrong: ${wrongAnswers}`;
 }
 
 // Next question button click event
@@ -6530,7 +6559,12 @@ nextBtn.addEventListener("click", () => {
   if (currentQuestion < totalQuestions - 1) {
     currentQuestion++;
     const selectedRange = parseInt(questionCountSelect.value);
-    const startQuestionIndex = (selectedRange / 60 - 1) * 60; // Recalculate startQuestionIndex
+    let startQuestionIndex;
+    if (selectedRange === 546) {
+      startQuestionIndex = 480; // Special case for the last range
+    } else {
+      startQuestionIndex = (selectedRange / 60 - 1) * 60;
+    }
     loadQuestion(currentQuestion, startQuestionIndex);
   }
 });
@@ -6540,7 +6574,12 @@ prevBtn.addEventListener("click", () => {
   if (currentQuestion > 0) {
     currentQuestion--;
     const selectedRange = parseInt(questionCountSelect.value);
-    const startQuestionIndex = (selectedRange / 60 - 1) * 60; // Recalculate startQuestionIndex
+    let startQuestionIndex;
+    if (selectedRange === 546) {
+      startQuestionIndex = 480; // Special case for the last range
+    } else {
+      startQuestionIndex = (selectedRange / 60 - 1) * 60;
+    }
     loadQuestion(currentQuestion, startQuestionIndex);
   }
 });
@@ -6570,149 +6609,226 @@ prevBtn.addEventListener("click", () => {
       }, 1000);
     }
 
-    // Submit answer logic
-    submitBtn.addEventListener("click", () => {
-      const questionObj = quizData[currentQuestion];
+    // Submit answer button click event
+submitBtn.addEventListener("click", () => {
+  if (selectedOptions.length === 0) {
+    resultParagraph.textContent = "You haven't selected any answers.";
+    resultParagraph.style.color = "orange";
+    return;
+  }
 
-      if (selectedOptions.length === 0) {
-        resultParagraph.textContent = "You haven't selected any answers.";
-        resultParagraph.style.color = "orange";
-        return;
-      }
+  if (answeredQuestions.has(currentQuestion)) {
+    resultParagraph.textContent = "You can only submit an answer once per question.";
+    resultParagraph.style.color = "orange";
+    return;
+  }
 
-      if (answeredQuestions.has(currentQuestion)) {
-        resultParagraph.textContent = "You can only submit an answer once per question.";
-        resultParagraph.style.color = "orange";
-        return;
-      }
+  let isCorrect;
+  const questionObj = quizData[startQuestionIndex + currentQuestion];
+  if (Array.isArray(questionObj.correct)) {
+    // Handle multiple correct answers
+    if (selectedOptions.length !== questionObj.correct.length) {
+      resultParagraph.textContent = `Please select exactly ${questionObj.correct.length} answers.`;
+      resultParagraph.style.color = "orange";
+      return;
+    }
+    // Check if all selected options match the correct answers
+    isCorrect = selectedOptions.every((option) => questionObj.correct.includes(option));
+  } else {
+    // Handle single correct answer
+    isCorrect = selectedOptions.length === 1 && selectedOptions[0] === questionObj.correct;
+  }
 
-      let isCorrect;
-      if (Array.isArray(questionObj.correct)) {
-        // Handle multiple correct answers
-        if (selectedOptions.length !== questionObj.correct.length) {
-          resultParagraph.textContent = `Please select exactly ${questionObj.correct.length} answers.`;
-          resultParagraph.style.color = "orange";
-          return;
-        }
-        // Check if all selected options match the correct answers
-        isCorrect = selectedOptions.every((option) => questionObj.correct.includes(option));
-      } else {
-        // Handle single correct answer
-        isCorrect = selectedOptions.length === 1 && selectedOptions[0] === questionObj.correct;
-      }
+  if (isCorrect) {
+    correctAnswers++;
+    resultParagraph.textContent = "Correct!";
+    resultParagraph.style.color = "green";
+  } else {
+    wrongAnswers++;
+    resultParagraph.textContent = "Incorrect.";
+    resultParagraph.style.color = "red";
+    wrongQuestionNumbers.push(currentQuestion + 1); // Track wrong question numbers
+  }
 
-      if (isCorrect) {
-        correctAnswers++;
-        resultParagraph.textContent = "Correct!";
-        resultParagraph.style.color = "green";
-      } else {
-        wrongAnswers++;
-        resultParagraph.textContent = "Incorrect.";
-        resultParagraph.style.color = "red";
-        wrongQuestionNumbers.push(currentQuestion + 1); // Track wrong question numbers
-      }
+  correctCount.textContent = `Correct: ${correctAnswers}`;
+  wrongCount.textContent = `Wrong: ${wrongAnswers}`;
+  explanationDiv.style.display = "block";
+  answeredQuestions.add(currentQuestion);
+});
+    
 
-      correctCount.textContent = `Correct: ${correctAnswers}`;
-      wrongCount.textContent = `Wrong: ${wrongAnswers}`;
-      explanationDiv.style.display = "block";
-      answeredQuestions.add(currentQuestion);
-    });
+   // End quiz and show results
+endQuizBtn.addEventListener("click", () => {
+  // Create a confirmation dialog within the app
+  const confirmationDialog = document.createElement("div");
+  confirmationDialog.style.position = "fixed";
+  confirmationDialog.style.top = "50%";
+  confirmationDialog.style.left = "50%";
+  confirmationDialog.style.transform = "translate(-50%, -50%)";
+  confirmationDialog.style.backgroundColor = "#fff";
+  confirmationDialog.style.padding = "20px";
+  confirmationDialog.style.borderRadius = "10px";
+  confirmationDialog.style.boxShadow = "0 0 10px rgba(0, 0, 0, 0.2)";
+  confirmationDialog.style.zIndex = "1000";
+  confirmationDialog.style.width = "300px";
+  confirmationDialog.style.height = "150px";
+  confirmationDialog.style.display = "flex";
+  confirmationDialog.style.flexDirection = "column";
+  confirmationDialog.style.alignItems = "center";
+  confirmationDialog.style.justifyContent = "center";
+  confirmationDialog.style.color = "navy"; // Change text color to navy blue
 
-    // End quiz and show results
-    endQuizBtn.addEventListener("click", () => {
-      const confirmEnd = confirm("Are you sure you want to end the test?");
-      if (!confirmEnd) return;
+  const confirmationText = document.createElement("p");
+  confirmationText.textContent = "Are you sure you want to end this test?";
+  confirmationText.style.fontSize = "18px"; 
+  confirmationText.style.marginBottom = "20px"; 
+  confirmationText.style.color = "navy"; // Change text color to navy blue
 
-      const scorePercentage = Math.round((correctAnswers / totalQuestions) * 100);
-      const passStatus = scorePercentage >= 90 ? "Pass" : "Fail";
+  const confirmButton = document.createElement("button");
+  confirmButton.textContent = "Yes";
+  confirmButton.style.marginRight = "10px";
+  confirmButton.style.width = "80px";
+  confirmButton.style.height = "30px";
 
-      // Get current date and time
-      const now = new Date();
-      const options = { 
-        weekday: 'short', 
-        year: 'numeric', 
-        month: 'short', 
-        day: 'numeric', 
-        hour: '2-digit', 
-        minute: '2-digit', 
-        hour12: true 
-      };
-      const testCompletedOn = now.toLocaleString('en-US', options);
+  const cancelButton = document.createElement("button");
+  cancelButton.textContent = "No";
+  cancelButton.style.width = "80px";
+  cancelButton.style.height = "30px";
 
-      // Random motivational message
-      let motivational;
-      if (passStatus === "Pass") {
-        motivational = motivationalMessagesPass[Math.floor(Math.random() * motivationalMessagesPass.length)];
-      } else {
-        motivational = motivationalMessagesFail[Math.floor(Math.random() * motivationalMessagesFail.length)];
-      }
-      motivational = motivational.replace("{user}", userName);
+  confirmationDialog.appendChild(confirmationText);
+  const buttonContainer = document.createElement("div");
+  buttonContainer.style.display = "flex";
+  buttonContainer.appendChild(confirmButton);
+  buttonContainer.appendChild(cancelButton);
+  confirmationDialog.appendChild(buttonContainer);
 
-      // Build result summary
-      let resultSummary = `CompTIA Sec+ Test Results\n\n`;
-      resultSummary += `Name: ${userName}\nScore: ${scorePercentage}% (${passStatus})\nCorrect Answers: ${correctAnswers}\nWrong Answers: ${wrongAnswers}\nAttempts: ${attempts}\n`;
-      resultSummary += `Test Completed on: ${testCompletedOn}\n\n`;
+  document.body.appendChild(confirmationDialog);
 
-      // Add wrong question numbers to results
-      if (wrongQuestionNumbers.length > 0) {
-        resultSummary += `Questions you got wrong: Question ${wrongQuestionNumbers.join(", ")}\n\n`;
-      }
+  // Add event listeners to the buttons
+  confirmButton.addEventListener("click", () => {
+    // End the quiz and show the results
+    const scorePercentage = Math.round((correctAnswers / totalQuestions) * 100);
+    const passStatus = scorePercentage >= 90 ? "Pass" : "Fail";
 
-      resultSummary += motivational;
+    // Get current date and time
+    const now = new Date();
+    const options = {
+      weekday: 'short',
+      year: 'numeric',
+      month: 'short',
+      day: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit',
+      hour12: true
+    };
+    const testCompletedOn = now.toLocaleString('en-US', options);
 
-      // Display result summary
-      document.getElementById('quiz-content').style.display = 'none';
-      resultDataDiv.style.display = "block";
-      resultDataDiv.style.whiteSpace = "pre-wrap";
-      resultDataDiv.style.backgroundColor = "#fff";
-      resultDataDiv.style.color = "#001f3d";
-      resultDataDiv.style.padding = "1rem";
-      resultDataDiv.style.marginTop = "1rem";
-      resultDataDiv.innerText = resultSummary;
+    // Random motivational message
+    let motivational;
+    if (passStatus === "Pass") {
+      motivational = motivationalMessagesPass[Math.floor(Math.random() * motivationalMessagesPass.length)];
+    } else {
+      motivational = motivationalMessagesFail[Math.floor(Math.random() * motivationalMessagesFail.length)];
+    }
+    motivational = motivational.replace("{user}", userName);
 
-      // Show Restart, Home, and Print buttons
-      endQuizBtn.style.display = "none";
-      restartBtn.style.display = "inline-block";
-      homeBtn.style.display = "inline-block";
-      document.getElementById('print-results').style.display = "inline-block";
-    });
+    // Build result summary
+    let resultSummary = `CompTIA Sec+ Test Results\n\n`;
+  resultSummary += `Name: ${userName}\nScore: ${scorePercentage}% (${passStatus})\nCorrect Answers: ${correctAnswers}\nWrong Answers: ${wrongAnswers}\nAttempts: ${attempts}\n`;
+    resultSummary += `Test Completed on: ${testCompletedOn}\n\n`;
 
-    // Restart quiz
-    restartBtn.addEventListener("click", () => {
-      currentQuestion = 0;
-      correctAnswers = 0;
-      wrongAnswers = 0;
-      selectedOptions = []; // Reset selected options
-      answeredQuestions.clear();
-      wrongQuestionNumbers = []; // Reset wrong question numbers
-      attempts++;
-      attemptsDisplay.textContent = `Attempts: ${attempts}`;
+    // Add wrong question numbers to results
+    if (wrongQuestionNumbers.length > 0) {
+      resultSummary += `Questions you got wrong: Question ${wrongQuestionNumbers.join(", ")}\n\n`;
+    }
 
-      // Reset Correct and Wrong counters
-      correctCount.textContent = `Correct: 0`;
-      wrongCount.textContent = `Wrong: 0`;
+    resultSummary += motivational;
 
-      document.getElementById('quiz-content').style.display = 'block';
-      resultDataDiv.style.display = "none";
-      restartBtn.style.display = "none";
-      homeBtn.style.display = "none";
-      document.getElementById('print-results').style.display = "none";
-      loadQuestion(currentQuestion);
-    });
+    // Display result summary
+  document.getElementById('quiz-content').style.display = 'none';
+  resultDataDiv.style.display = "block";
+  resultDataDiv.style.whiteSpace = "pre-wrap";
+  resultDataDiv.style.backgroundColor = "#fff";
+  resultDataDiv.style.color = "#001f3d";
+  resultDataDiv.style.padding = "1rem";
+  resultDataDiv.style.marginTop = "1rem";
+  resultDataDiv.innerText = resultSummary;
 
+  // Show Restart, Home, and Print buttons
+  endQuizBtn.style.display = "none";
+  restartBtn.style.display = "inline-block";
+  homeBtn.style.display = "inline-block";
+  document.getElementById('print-results').style.display = "inline-block";
+
+  // Update attempts display
+  attemptsDisplay.textContent = `Attempts: ${attempts}`;
+
+    // Remove confirmation dialog
+    confirmationDialog.remove();
+  });
+
+  cancelButton.addEventListener("click", () => {
+    // Remove confirmation dialog
+    confirmationDialog.remove();
+  });
+});
+
+restartBtn.addEventListener("click", () => {
+  // Hide result summary and show quiz content
+  resultDataDiv.style.display = "none";
+  document.getElementById('quiz-content').style.display = 'block';
+
+  // Reset variables
+  currentQuestion = 0;
+  correctAnswers = 0;
+  wrongAnswers = 0;
+  selectedOptions = []; // Reset selected options
+  answeredQuestions.clear();
+  wrongQuestionNumbers = []; // Reset wrong question numbers
+  attempts++; // Increment attempts
+
+  // Reset Correct and Wrong counters
+  correctCount.textContent = `Correct: 0`;
+  wrongCount.textContent = `Wrong: 0`;
+
+  // Update attempts display
+  attemptsDisplay.textContent = `Attempts: ${attempts}`;
+
+  // Reset progress bar
+  document.getElementById('progress').style.width = `0%`;
+
+  // Load the first question again
+  loadQuestion(currentQuestion, startQuestionIndex);
+
+  // Hide extra buttons
+  restartBtn.style.display = "none";
+  homeBtn.style.display = "none";
+  document.getElementById('print-results').style.display = "none";
+
+  // Show necessary buttons
+  nextBtn.style.display = "block";
+
+  // Show End Quiz button for the last range
+  const selectedRange = parseInt(questionCountSelect.value);
+  if (selectedRange === 546) {
+    endQuizBtn.style.display = "inline-block";
+  } else {
+    endQuizBtn.style.display = "none";
+  }
+});
     // Go home
     homeBtn.addEventListener("click", () => {
-      window.location.reload();
-    });
-
+  window.location.reload();
+});
     // Print results
     document.getElementById('print-results').addEventListener('click', () => {
       window.print(); // Print the current screen
     });
 
-
-
-
+    // Add event listener to info icon
+document.querySelector('.info-icon').addEventListener('click', () => {
+  document.querySelector('.info-message').style.display = document.querySelector('.info-message').style.display === 'block' ? 'none' : 'block';
+});
 
     // Initialize question count options
     populateQuestionCount();
