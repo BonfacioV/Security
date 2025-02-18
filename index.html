@@ -285,7 +285,7 @@
     document.addEventListener("contextmenu", (e) => e.preventDefault());
     document.addEventListener("selectstart", (e) => e.preventDefault());
 
-        // Quiz Data (example with 20 questions)
+        // Quiz Data (example with 546 questions)
         const quizData = [
   {
     "question": "Question 1:\nWhich of the following threat actors is the most likely to be hired by a foreign government to attack critical systems located in other countries?",
@@ -676,7 +676,7 @@
     "C. Critical",
     "D. Data in transit"
   ],
-  "correct": 4,
+  "correct": 1,
   "explanation": "B. Intellectual property is the most likely type of sensitive data used by R&D employees, as it is valuable and needs to be protected."
 },
 {
@@ -733,7 +733,7 @@
     "C. Cloud provider",
     "D. DBA"
   ],
-  "correct": 3,
+  "correct": 0,
   "explanation": "A. In the IaaS model, the client is responsible for securing their own data, including databases."
 },
 {
@@ -6708,7 +6708,7 @@ endQuizBtn.addEventListener("click", () => {
   confirmButton.addEventListener("click", () => {
     // End the quiz and show the results
     const scorePercentage = Math.round((correctAnswers / totalQuestions) * 100);
-    const passStatus = scorePercentage >= 90 ? "Pass" : "Fail";
+    const passStatus = scorePercentage >= 80 ? "Pass" : "Fail";
 
     // Get current date and time
     const now = new Date();
