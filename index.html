@@ -226,11 +226,11 @@
   </select>
   <label for="timer-duration">Test Duration:</label>
   <select id="timer-duration">
-    <option value="1800">30 minutes</option>
-    <option value="3600">60 minutes</option>
-    <option value="5400">90 minutes</option>
-    <option value="7200">120 minutes</option>
-    <option value="9000">150 minutes</option>
+    <option value="1800">30 mins</option>
+    <option value="3600">60 mins</option>
+    <option value="5400">90 mins</option>
+    <option value="7200">120 mins</option>
+    <option value="9000">150 mins</option>
     <option value="0">No timer</option>
   </select>
 </div>    
@@ -2010,7 +2010,108 @@
   "correct": 1,
   "explanation": "B. An access badge is a good way to restrict entry to authorized personnel and ensure security within the data center."
 },
-
+{
+  "question": "Question 152:\nAn engineer moved to another team and is unable to access the new team's shared folders while still being able to access the shared folders from the former team. After opening a ticket, the engineer discovers that the account was never moved to the new group. Which of the following access controls is most likely causing the lack of access?",
+  "options": [
+    "A. Role-based",
+    "B. Discretionary",
+    "C. Time of day",
+    "D. Least privilege"
+  ],
+  "correct": 0,
+  "explanation": "A. Role-based access control is most likely causing the lack of access."
+},
+{
+  "question": "Question 153:\nWhich of the following factors are the most important to address when formulating a training curriculum plan for a security awareness program? (Choose two.)",
+  "options": [
+    "A. Channels by which the organization communicates with customers",
+    "B. The reporting mechanisms for ethics violations",
+    "C. Threat vectors based on the industry in which the organization operates",
+    "D. Secure software development training for all personnel",
+    "E. Cadence and duration of training events",
+    "F. Retraining requirements for individuals who fail phishing simulations"
+  ],
+  "correct": [2, 4],
+  "explanation": "C and E. Threat vectors based on the industry and cadence and duration of training events are most important to address."
+},
+{
+  "question": "Question 154:\nA network administrator is working on a project to deploy a load balancer in the company's cloud environment. Which of the following fundamental security requirements does this project fulfill?",
+  "options": [
+    "A. Privacy",
+    "B. Integrity",
+    "C. Confidentiality",
+    "D. Availability"
+  ],
+  "correct": 3,
+  "explanation": "D. Availability is the fundamental security requirement fulfilled by this project."
+},
+{
+  "question": "Question 155:\nA systems administrator is changing the password policy within an enterprise environment and wants this update implemented on all systems as quickly as possible. Which of the following operating system security measures will the administrator most likely use?",
+  "options": [
+    "A. Deploying PowerShell scripts",
+    "B. Pushing GPO update",
+    "C. Enabling PAP",
+    "D. Updating EDR profiles"
+  ],
+  "correct": 1,
+  "explanation": "B. Pushing GPO update is the most likely operating system security measure to be used."
+},
+{
+  "question": "Question 156:\nWhich of the following would be most useful in determining whether the long-term cost to transfer a risk is less than the impact of the risk?",
+  "options": [
+    "A. ARO",
+    "B. RTO",
+    "C. RPO",
+    "D. ALE",
+    "E. SLE"
+  ],
+  "correct": 3,
+  "explanation": "D. ALE (Annualized Loss Expectancy) would be most useful in determining whether the long-term cost to transfer a risk is less than the impact of the risk."
+},
+{
+  "question": "Question 157:\nIn order to strengthen a password and prevent a hacker from cracking it, a random string of 36 characters was added to the password. Which of the following best describes this technique?",
+  "options": [
+    "A. Key stretching",
+    "B. Tokenization",
+    "C. Data masking",
+    "D. Salting"
+  ],
+  "correct": 3,
+  "explanation": "D. Salting is the technique used to strengthen a password by adding a random string of characters."
+},
+{
+  "question": "Question 158:\nA technician is deploying a new security camera. Which of the following should the technician do?",
+  "options": [
+    "A. Configure the correct VLAN.",
+    "B. Perform a vulnerability scan.",
+    "C. Disable unnecessary ports.",
+    "D. Conduct a site survey."
+  ],
+  "correct": 3,
+  "explanation": "D. Conduct a site survey to determine the best location for the security camera."
+},
+{
+  "question": "Question 159:\nA company is experiencing a web services outage on the public network. The services are up and available but inaccessible. The network logs show a sudden increase in network traffic that is causing the outage. Which of the following attacks is the organization experiencing?",
+  "options": [
+    "A. ARP poisoning",
+    "B. Brute force",
+    "C. Buffer overflow",
+    "D. DDoS"
+  ],
+  "correct": 3,
+  "explanation": "D. DDoS (Distributed Denial of Service) attack is the most likely cause of the outage."
+},
+{
+  "question": "Question 160:\nWhich of the following threat actors is the most likely to be motivated by profit?",
+  "options": [
+    "A. Hacktivist",
+    "B. Insider threat",
+    "C. Organized crime",
+    "D. Shadow IT"
+  ],
+  "correct": 2,
+  "explanation": "C. Organized crime is the most likely threat actor to be motivated by profit."
+},
 {
   "question": "Question 161:\nAn organization experiences a cybersecurity incident involving a command-and-control server. Which of the following logs should be analyzed to identify the impacted host? (Choose two.)",
   "options": [
@@ -2043,7 +2144,7 @@
     "C. Hashing",
     "D. Salting"
   ],
-  "correct": 1,
+  "correct": 0,
   "explanation": "A. Symmetric encryption uses the same key for both encryption and decryption of a message."
 },
 {
@@ -6390,6 +6491,14 @@ let timerInterval;
 let attempts = 1;
 let answeredQuestions = new Set();
 let wrongQuestionNumbers = []; // Track wrong question numbers
+let startTime = 0;
+let endTime = 0;
+let startQuestionIndex = 0;
+let selectedRangeStart = 0;
+let selectedRangeEnd = 0;
+let totalTimeTaken = 0;
+let averageTimePerQuestion = 0;
+let readinessLevel = "";
 
     // DOM references
     const questionTitle = document.getElementById("question-title");
@@ -6424,26 +6533,20 @@ let wrongQuestionNumbers = []; // Track wrong question numbers
   // Populate question count options
 function populateQuestionCount() {
   questionCountSelect.innerHTML = "";
-  const options = [
-    { value: 60, text: "Questions 1-60" },
-    { value: 120, text: "Questions 61-120" },
-    { value: 180, text: "Questions 121-180" },
-    { value: 240, text: "Questions 181-240" },
-    { value: 300, text: "Questions 241-300" },
-    { value: 360, text: "Questions 301-360" },
-    { value: 420, text: "Questions 361-420" },
-    { value: 480, text: "Questions 421-480" },
-    { value: 546, text: "Questions 481-546" },
-  ];
+  const questionCount = 546;
+  const questionsPerRange = 78;
+  const ranges = Math.ceil(questionCount / questionsPerRange);
 
-  options.forEach((option) => {
+  for (let i = 0; i < ranges; i++) {
+    const startQuestion = i * questionsPerRange + 1;
+    const endQuestion = Math.min(startQuestion + questionsPerRange - 1, questionCount);
     const optionElement = document.createElement("option");
-    optionElement.value = option.value;
-    optionElement.textContent = option.text;
+    optionElement.value = startQuestion;
+    optionElement.textContent = `Questions ${startQuestion}-${endQuestion}`;
     questionCountSelect.appendChild(optionElement);
-  });
+  }
 
-  questionCountSelect.value = options[0].value;
+  questionCountSelect.value = questionCountSelect.options[0].value;
 }
 
 // Start quiz
@@ -6453,12 +6556,13 @@ document.getElementById("begin-quiz").addEventListener("click", () => {
   const password = document.getElementById("user-password").value.trim();
   const selectedText = questionCountSelect.options[questionCountSelect.selectedIndex].text;
   const range = selectedText.replace("Questions ", "").split('-'); // Remove "Questions " before splitting
-  const startQuestion = parseInt(range[0]);
-  const endQuestion = parseInt(range[1]);
-  totalQuestions = endQuestion - startQuestion + 1; // Update totalQuestions to the correct number of questions in the range
-  startQuestionIndex = startQuestion - 1; // Calculate the correct starting index
+  selectedRangeStart = parseInt(range[0]);
+  selectedRangeEnd = parseInt(range[1]);
+  totalQuestions = selectedRangeEnd - selectedRangeStart + 1; // Update totalQuestions to the correct number of questions in the range
+  startQuestionIndex = selectedRangeStart - 1; // Calculate the correct starting index
   currentQuestion = 0; // Reset currentQuestion to 0 for the selected range
   timeLeft = parseInt(timerDurationSelect.value);
+  startTime = new Date().getTime(); // Record start time
 
   if (userName === "") {
     alert("Enter your name first!");
@@ -6477,6 +6581,8 @@ document.getElementById("begin-quiz").addEventListener("click", () => {
   loadQuestion(currentQuestion, startQuestionIndex); // Pass startQuestionIndex to loadQuestion
   startTimer();
 });
+
+
 
 // Load question function
 function loadQuestion(index, startQuestionIndex) {
@@ -6519,15 +6625,12 @@ function loadQuestion(index, startQuestionIndex) {
 
   // Show End Test button and hide Next button on the last question
   const selectedRange = parseInt(questionCountSelect.value);
-  if (selectedRange === 546 && index === totalQuestions - 1) {
+  if (index === totalQuestions - 1) {
     endQuizBtn.style.display = "inline-block";
     nextBtn.style.display = "none";
-  } else if (selectedRange === 546) {
-    endQuizBtn.style.display = "inline-block";
-    nextBtn.style.display = "inline-block";
   } else {
-    endQuizBtn.style.display = (index === totalQuestions - 1) ? "inline-block" : "none";
-    nextBtn.style.display = (index === totalQuestions - 1) ? "none" : "inline-block";
+    endQuizBtn.style.display = "none";
+    nextBtn.style.display = "inline-block";
   }
 
   // Update progress bar
@@ -6537,34 +6640,55 @@ function loadQuestion(index, startQuestionIndex) {
 // Check answer function
 function checkAnswer(index, startQuestionIndex) {
   const questionObj = quizData[startQuestionIndex + index];
-  const correctAnswer = questionObj.correctAnswer;
-  const userAnswer = selectedOptions[0];
 
-  if (userAnswer === correctAnswer) {
+  if (selectedOptions.length === 0) {
+    resultParagraph.textContent = "You haven't selected any answers.";
+    resultParagraph.style.color = "orange";
+    return;
+  }
+
+  if (answeredQuestions.has(currentQuestion)) {
+    resultParagraph.textContent = "You can only submit an answer once per question.";
+    resultParagraph.style.color = "orange";
+    return;
+  }
+
+  let isCorrect;
+  if (Array.isArray(questionObj.correct)) {
+    // Handle multiple correct answers
+    if (selectedOptions.length !== questionObj.correct.length) {
+      resultParagraph.textContent = `Please select exactly ${questionObj.correct.length} answers.`;
+      resultParagraph.style.color = "orange";
+      return;
+    }
+    // Check if all selected options match the correct answers
+    isCorrect = selectedOptions.every((option) => questionObj.correct.includes(option));
+  } else {
+    // Handle single correct answer
+    isCorrect = selectedOptions.length === 1 && selectedOptions[0] === questionObj.correct;
+  }
+
+  if (isCorrect) {
+    correctAnswers++;
     resultParagraph.textContent = "Correct!";
     resultParagraph.style.color = "green";
-    correctAnswers++;
   } else {
-    resultParagraph.textContent = `Incorrect! The correct answer is ${correctAnswer}.`;
-    resultParagraph.style.color = "red";
     wrongAnswers++;
+    resultParagraph.textContent = "Incorrect.";
+    resultParagraph.style.color = "red";
+    wrongQuestionNumbers.push(currentQuestion + 1); // Track wrong question numbers
   }
 
   correctCount.textContent = `Correct: ${correctAnswers}`;
   wrongCount.textContent = `Wrong: ${wrongAnswers}`;
+  explanationDiv.style.display = "block";
+  answeredQuestions.add(currentQuestion);
 }
 
 // Next question button click event
 nextBtn.addEventListener("click", () => {
   if (currentQuestion < totalQuestions - 1) {
     currentQuestion++;
-    const selectedRange = parseInt(questionCountSelect.value);
-    let startQuestionIndex;
-    if (selectedRange === 546) {
-      startQuestionIndex = 480; // Special case for the last range
-    } else {
-      startQuestionIndex = (selectedRange / 60 - 1) * 60;
-    }
     loadQuestion(currentQuestion, startQuestionIndex);
   }
 });
@@ -6573,13 +6697,6 @@ nextBtn.addEventListener("click", () => {
 prevBtn.addEventListener("click", () => {
   if (currentQuestion > 0) {
     currentQuestion--;
-    const selectedRange = parseInt(questionCountSelect.value);
-    let startQuestionIndex;
-    if (selectedRange === 546) {
-      startQuestionIndex = 480; // Special case for the last range
-    } else {
-      startQuestionIndex = (selectedRange / 60 - 1) * 60;
-    }
     loadQuestion(currentQuestion, startQuestionIndex);
   }
 });
@@ -6592,27 +6709,28 @@ prevBtn.addEventListener("click", () => {
     }
 
     // Timer function
-    function startTimer() {
-      if (timeLeft <= 0) return;
+function startTimer() {
+  if (timeLeft <= 0) return;
 
-      timerInterval = setInterval(() => {
-        if (timeLeft <= 0) {
-          clearInterval(timerInterval);
-          alert("Time's up! Quiz completed.");
-          endQuiz();
-        } else {
-          timeLeft--;
-          const minutes = Math.floor(timeLeft / 60);
-          const seconds = timeLeft % 60;
-          timerDisplay.textContent = `Time Left: ${minutes}:${seconds.toString().padStart(2, '0')}`;
-        }
-      }, 1000);
+  timerInterval = setInterval(() => {
+    if (timeLeft <= 0) {
+      clearInterval(timerInterval);
+      alert("That was hectic yoh. Time's up.");
+      endQuiz();
+    } else {
+      timeLeft--;
+      const hours = Math.floor(timeLeft / 3600);
+      const minutes = Math.floor((timeLeft % 3600) / 60);
+      const seconds = timeLeft % 60;
+      timerDisplay.textContent = `Time Left: ${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
     }
+  }, 1000);
+}
 
     // Submit answer button click event
 submitBtn.addEventListener("click", () => {
   if (selectedOptions.length === 0) {
-    resultParagraph.textContent = "You haven't selected any answers.";
+    resultParagraph.textContent = "Please select an answer!";
     resultParagraph.style.color = "orange";
     return;
   }
@@ -6657,94 +6775,73 @@ submitBtn.addEventListener("click", () => {
 });
     
 
-   // End quiz and show results
+// Update the endQuizBtn event listener to calculate additional metrics
 endQuizBtn.addEventListener("click", () => {
-  // Create a confirmation dialog within the app
-  const confirmationDialog = document.createElement("div");
-  confirmationDialog.style.position = "fixed";
-  confirmationDialog.style.top = "50%";
-  confirmationDialog.style.left = "50%";
-  confirmationDialog.style.transform = "translate(-50%, -50%)";
-  confirmationDialog.style.backgroundColor = "#fff";
-  confirmationDialog.style.padding = "20px";
-  confirmationDialog.style.borderRadius = "10px";
-  confirmationDialog.style.boxShadow = "0 0 10px rgba(0, 0, 0, 0.2)";
-  confirmationDialog.style.zIndex = "1000";
-  confirmationDialog.style.width = "300px";
-  confirmationDialog.style.height = "150px";
-  confirmationDialog.style.display = "flex";
-  confirmationDialog.style.flexDirection = "column";
-  confirmationDialog.style.alignItems = "center";
-  confirmationDialog.style.justifyContent = "center";
-  confirmationDialog.style.color = "navy"; // Change text color to navy blue
+  // Record end time
+  endTime = new Date().getTime();
+  
+  // Calculate total time taken
+  totalTimeTaken = Math.floor((endTime - startTime) / 60000);
+  
+  // Calculate average time per question
+  averageTimePerQuestion = totalTimeTaken / totalQuestions;
+  
+  // Calculate score percentage
+  const scorePercentage = Math.round((correctAnswers / totalQuestions) * 100);
+  const passStatus = scorePercentage >= 80 ? "Pass" : "Fail";
 
-  const confirmationText = document.createElement("p");
-  confirmationText.textContent = "Are you sure you want to end this test?";
-  confirmationText.style.fontSize = "18px"; 
-  confirmationText.style.marginBottom = "20px"; 
-  confirmationText.style.color = "navy"; // Change text color to navy blue
+ // Determine readiness level based on score percentage
 
-  const confirmButton = document.createElement("button");
-  confirmButton.textContent = "Yes";
-  confirmButton.style.marginRight = "10px";
-  confirmButton.style.width = "80px";
-  confirmButton.style.height = "30px";
 
-  const cancelButton = document.createElement("button");
-  cancelButton.textContent = "No";
-  cancelButton.style.width = "80px";
-  cancelButton.style.height = "30px";
+if (scorePercentage >= 90) {
+  readinessLevel = "Excellent - You're well-prepared for the exam!";
+} else if (scorePercentage >= 80) {
+  readinessLevel = "Good - You're on track, but review some areas for improvement.";
+} else if (scorePercentage >= 70) {
+  readinessLevel = "Fair - You need to focus on weaker areas to improve your chances.";
+} else {
+  readinessLevel = "Poor - You require significant improvement before attempting the exam.";
+}
 
-  confirmationDialog.appendChild(confirmationText);
-  const buttonContainer = document.createElement("div");
-  buttonContainer.style.display = "flex";
-  buttonContainer.appendChild(confirmButton);
-  buttonContainer.appendChild(cancelButton);
-  confirmationDialog.appendChild(buttonContainer);
+  
+  // Get current date and time
+  const now = new Date();
+  const options = {
+    weekday: 'short',
+    year: 'numeric',
+    month: 'short',
+    day: 'numeric',
+    hour: '2-digit',
+    minute: '2-digit',
+    hour12: true
+  };
+  const testCompletedOn = now.toLocaleString('en-US', options);
 
-  document.body.appendChild(confirmationDialog);
+  // Random motivational message
+  let motivational;
+  if (passStatus === "Pass") {
+    motivational = motivationalMessagesPass[Math.floor(Math.random() * motivationalMessagesPass.length)];
+  } else {
+    motivational = motivationalMessagesFail[Math.floor(Math.random() * motivationalMessagesFail.length)];
+  }
+  motivational = motivational.replace("{user}", userName);
 
-  // Add event listeners to the buttons
-  confirmButton.addEventListener("click", () => {
-    // End the quiz and show the results
-    const scorePercentage = Math.round((correctAnswers / totalQuestions) * 100);
-    const passStatus = scorePercentage >= 80 ? "Pass" : "Fail";
+ // Build result summary
+let resultSummary = `CompTIA Sec+ Test Results\n\n`;
+resultSummary += `Name: ${userName}\nScore: ${scorePercentage}% (${passStatus})\nCorrect Answers: ${correctAnswers}\nWrong Answers: ${wrongAnswers}\nAttempts: ${attempts}\n`;
+resultSummary += `Test Completed on: ${testCompletedOn}\n`;
+resultSummary += `Start Time: ${new Date(startTime).toLocaleString('en-US', options)}\n`;
+resultSummary += `End Time: ${new Date(endTime).toLocaleString('en-US', options)}\n`;
+resultSummary += `Time Taken: ${Math.floor((endTime - startTime) / 60000)} minutes and ${Math.floor(((endTime - startTime) % 60000) / 1000)} seconds\n\n`;
+resultSummary += `Total Time Taken: ${totalTimeTaken} minutes\n`;
+resultSummary += `Average Time Per Question: ${averageTimePerQuestion.toFixed(2)} minutes\n`;
+resultSummary += `Readiness Level: ${readinessLevel}\n\n`;
+if (wrongQuestionNumbers.length > 0) {
+  resultSummary += `Questions you got wrong: Question ${wrongQuestionNumbers.join(", ")}\n\n`;
+}
+resultSummary += motivational;
 
-    // Get current date and time
-    const now = new Date();
-    const options = {
-      weekday: 'short',
-      year: 'numeric',
-      month: 'short',
-      day: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit',
-      hour12: true
-    };
-    const testCompletedOn = now.toLocaleString('en-US', options);
-
-    // Random motivational message
-    let motivational;
-    if (passStatus === "Pass") {
-      motivational = motivationalMessagesPass[Math.floor(Math.random() * motivationalMessagesPass.length)];
-    } else {
-      motivational = motivationalMessagesFail[Math.floor(Math.random() * motivationalMessagesFail.length)];
-    }
-    motivational = motivational.replace("{user}", userName);
-
-    // Build result summary
-    let resultSummary = `CompTIA Sec+ Test Results\n\n`;
-  resultSummary += `Name: ${userName}\nScore: ${scorePercentage}% (${passStatus})\nCorrect Answers: ${correctAnswers}\nWrong Answers: ${wrongAnswers}\nAttempts: ${attempts}\n`;
-    resultSummary += `Test Completed on: ${testCompletedOn}\n\n`;
-
-    // Add wrong question numbers to results
-    if (wrongQuestionNumbers.length > 0) {
-      resultSummary += `Questions you got wrong: Question ${wrongQuestionNumbers.join(", ")}\n\n`;
-    }
-
-    resultSummary += motivational;
-
-    // Display result summary
+  // Display result summary
   document.getElementById('quiz-content').style.display = 'none';
   resultDataDiv.style.display = "block";
   resultDataDiv.style.whiteSpace = "pre-wrap";
@@ -6760,71 +6857,67 @@ endQuizBtn.addEventListener("click", () => {
   homeBtn.style.display = "inline-block";
   document.getElementById('print-results').style.display = "inline-block";
 
-  // Update attempts display
-  attemptsDisplay.textContent = `Attempts: ${attempts}`;
-
     // Remove confirmation dialog
     confirmationDialog.remove();
   });
 
-  cancelButton.addEventListener("click", () => {
-    // Remove confirmation dialog
-    confirmationDialog.remove();
-  });
-});
-
+// Add event listener to restart button
 restartBtn.addEventListener("click", () => {
-  // Hide result summary and show quiz content
-  resultDataDiv.style.display = "none";
-  document.getElementById('quiz-content').style.display = 'block';
-
   // Reset variables
-  currentQuestion = 0;
   correctAnswers = 0;
   wrongAnswers = 0;
-  selectedOptions = []; // Reset selected options
-  answeredQuestions.clear();
-  wrongQuestionNumbers = []; // Reset wrong question numbers
-  attempts++; // Increment attempts
+  currentQuestion = 0;
+  wrongQuestionNumbers = [];
+  answeredQuestions = new Set(); // Create a new Set instance
+  startQuestionIndex = selectedRangeStart - 1; // Recalculate startQuestionIndex
 
-  // Reset Correct and Wrong counters
-  correctCount.textContent = `Correct: 0`;
-  wrongCount.textContent = `Wrong: 0`;
+  // Increment attempts counter
+  attempts++;
 
   // Update attempts display
   attemptsDisplay.textContent = `Attempts: ${attempts}`;
 
-  // Reset progress bar
-  document.getElementById('progress').style.width = `0%`;
+  // Reset quiz content
+  document.getElementById('quiz-content').style.display = 'block';
+  resultDataDiv.style.display = "none";
 
-  // Load the first question again
-  loadQuestion(currentQuestion, startQuestionIndex);
-
-  // Hide extra buttons
+  // Reset buttons
+  endQuizBtn.style.display = "inline-block";
   restartBtn.style.display = "none";
   homeBtn.style.display = "none";
   document.getElementById('print-results').style.display = "none";
 
-  // Show necessary buttons
-  nextBtn.style.display = "block";
-
-  // Show End Quiz button for the last range
-  const selectedRange = parseInt(questionCountSelect.value);
-  if (selectedRange === 546) {
-    endQuizBtn.style.display = "inline-block";
-  } else {
-    endQuizBtn.style.display = "none";
-  }
+  // Load first question
+  loadQuestion(currentQuestion, startQuestionIndex);
 });
-    // Go home
-    homeBtn.addEventListener("click", () => {
-  window.location.reload();
-});
-    // Print results
-    document.getElementById('print-results').addEventListener('click', () => {
-      window.print(); // Print the current screen
-    });
 
+// Add event listener to home button
+homeBtn.addEventListener("click", () => {
+  // Reset variables
+  correctAnswers = 0;
+  wrongAnswers = 0;
+  attempts = 0;
+  currentQuestion = 0;
+  wrongQuestionNumbers = [];
+
+  // Reset quiz content
+  document.getElementById('quiz-content').style.display = 'none';
+  resultDataDiv.style.display = "none";
+  namePopup.style.display = "block";
+  quizContainer.style.display = "none";
+
+  // Reset buttons
+  endQuizBtn.style.display = "none";
+  restartBtn.style.display = "none";
+  homeBtn.style.display = "none";
+  document.getElementById('print-results').style.display = "none";
+});
+
+// Add event listener to print results button
+document.getElementById('print-results').addEventListener("click", () => {
+  // Print result summary
+  window.print();
+});
     // Add event listener to info icon
 document.querySelector('.info-icon').addEventListener('click', () => {
   document.querySelector('.info-message').style.display = document.querySelector('.info-message').style.display === 'block' ? 'none' : 'block';
