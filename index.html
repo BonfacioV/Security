@@ -1136,7 +1136,7 @@
   },
 
 {
-  "question": "Question 76:\nHOTSPOT (Drag and Drop is not supported)\nSelect the appropriate attack and remediation from each drop-down list to label the corresponding attack with its remediation.\nINSTRUCTIONS\nNot all attacks and remediation actions will be used.\nIf at any time you would like to bring back the initial state of the simulation, please click the Reset All button. <br><img src='https://eaeastus2.blob.core.windows.net/optimizedimages/assets/media/exam-media/04112/0001000001.png' alt='Attack and Remediation'><br>",
+  "question": "Question 76:\nHOTSPOT (Drag and Drop is not supported)\nSelect the appropriate attack and remediation from each drop-down list to label the corresponding attack with its remediation.\nINSTRUCTIONS\nNot all attacks and remediation actions will be used.\nIf at any time you would like to bring back the initial state of the simulation, please click the Reset All button. <br><img src='https://free-braindumps.com/images/exam-dumps/SY0-701/e88f6626-6a44-4b7f-ab56-f4b9f35cabbe.jpg' alt='Attack and Remediation'><br>",
   "options": [
     "A. Click Submit button to see the correct answer."
   ],
@@ -6506,6 +6506,10 @@ let readinessLevel = "";
     const resultParagraph = document.getElementById("result");
     const explanationDiv = document.getElementById("explanation");
     const submitBtn = document.getElementById("submit-answer");
+    // Submit answer button click event
+submitBtn.addEventListener("click", () => {
+  checkAnswer(currentQuestion, startQuestionIndex);
+});
     const prevBtn = document.getElementById("prev-question");
     const nextBtn = document.getElementById("next-question");
     const userGreeting = document.getElementById("user-greeting");
@@ -6726,140 +6730,90 @@ function startTimer() {
     }
   }, 1000);
 }
-
-    // Submit answer button click event
-submitBtn.addEventListener("click", () => {
-  if (selectedOptions.length === 0) {
-    resultParagraph.textContent = "Please select an answer!";
-    resultParagraph.style.color = "orange";
-    return;
-  }
-
-  if (answeredQuestions.has(currentQuestion)) {
-    resultParagraph.textContent = "You can only submit an answer once per question.";
-    resultParagraph.style.color = "orange";
-    return;
-  }
-
-  let isCorrect;
-  const questionObj = quizData[startQuestionIndex + currentQuestion];
-  if (Array.isArray(questionObj.correct)) {
-    // Handle multiple correct answers
-    if (selectedOptions.length !== questionObj.correct.length) {
-      resultParagraph.textContent = `Please select exactly ${questionObj.correct.length} answers.`;
-      resultParagraph.style.color = "orange";
-      return;
-    }
-    // Check if all selected options match the correct answers
-    isCorrect = selectedOptions.every((option) => questionObj.correct.includes(option));
-  } else {
-    // Handle single correct answer
-    isCorrect = selectedOptions.length === 1 && selectedOptions[0] === questionObj.correct;
-  }
-
-  if (isCorrect) {
-    correctAnswers++;
-    resultParagraph.textContent = "Correct!";
-    resultParagraph.style.color = "green";
-  } else {
-    wrongAnswers++;
-    resultParagraph.textContent = "Incorrect.";
-    resultParagraph.style.color = "red";
-    wrongQuestionNumbers.push(currentQuestion + 1); // Track wrong question numbers
-  }
-
-  correctCount.textContent = `Correct: ${correctAnswers}`;
-  wrongCount.textContent = `Wrong: ${wrongAnswers}`;
-  explanationDiv.style.display = "block";
-  answeredQuestions.add(currentQuestion);
-});
     
 
-// Update the endQuizBtn event listener to calculate additional metrics
+// End quiz button click event
 endQuizBtn.addEventListener("click", () => {
-  // Record end time
-  endTime = new Date().getTime();
-  
-  // Calculate total time taken
-  totalTimeTaken = Math.floor((endTime - startTime) / 60000);
-  
-  // Calculate average time per question
-  averageTimePerQuestion = totalTimeTaken / totalQuestions;
-  
-  // Calculate score percentage
-  const scorePercentage = Math.round((correctAnswers / totalQuestions) * 100);
-  const passStatus = scorePercentage >= 80 ? "Pass" : "Fail";
+  if (confirm("Are you sure you want to end the test?")) {
+    // Record end time
+    endTime = new Date().getTime();
+    
+    // Calculate total time taken
+    totalTimeTaken = Math.floor((endTime - startTime) / 60000);
+    
+    // Calculate average time per question
+    averageTimePerQuestion = totalTimeTaken / totalQuestions;
+    
+    // Calculate score percentage
+    const scorePercentage = Math.round((correctAnswers / totalQuestions) * 100);
+    const passStatus = scorePercentage >= 85 ? "Pass" : "Fail";
 
- // Determine readiness level based on score percentage
+    // Determine readiness level based on score percentage
+    let readinessLevel;
+    if (scorePercentage >= 90) {
+      readinessLevel = "Ready for the exam! - uJesu uthi wena you're ready for the exam!";
+    } else if (scorePercentage >= 80) {
+      readinessLevel = "Almost - uJesu uthi you're on track, mara you need small touch ups nyana.";
+    } else if (scorePercentage >= 70) {
+      readinessLevel = "Fair - uJesu uthi you need to focus on weaker areas to improve your chances.";
+    } else {
+      readinessLevel = "Poor - uJesu uthi you require significant improvement before writing the real exam.";
+    }
 
+    // Get current date and time
+    const now = new Date();
+    const options = {
+      weekday: 'short',
+      year: 'numeric',
+      month: 'short',
+      day: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit',
+      hour12: true
+    };
+    const testCompletedOn = now.toLocaleString('en-US', options);
 
-if (scorePercentage >= 90) {
-  readinessLevel = "Excellent - You're well-prepared for the exam!";
-} else if (scorePercentage >= 80) {
-  readinessLevel = "Good - You're on track, but review some areas for improvement.";
-} else if (scorePercentage >= 70) {
-  readinessLevel = "Fair - You need to focus on weaker areas to improve your chances.";
-} else {
-  readinessLevel = "Poor - You require significant improvement before attempting the exam.";
-}
+    // Random motivational message
+    let motivational;
+    if (passStatus === "Pass") {
+      motivational = motivationalMessagesPass[Math.floor(Math.random() * motivationalMessagesPass.length)];
+    } else {
+      motivational = motivationalMessagesFail[Math.floor(Math.random() * motivationalMessagesFail.length)];
+    }
+    motivational = motivational.replace("{user}", userName);
 
-  
-  // Get current date and time
-  const now = new Date();
-  const options = {
-    weekday: 'short',
-    year: 'numeric',
-    month: 'short',
-    day: 'numeric',
-    hour: '2-digit',
-    minute: '2-digit',
-    hour12: true
-  };
-  const testCompletedOn = now.toLocaleString('en-US', options);
+    // Build result summary
+    let resultSummary = `CompTIA Sec+ Test Results\n\n`;
+    resultSummary += `Name: ${userName}\nScore: ${scorePercentage}% (${passStatus})\nCorrect Answers: ${correctAnswers}\nWrong Answers: ${wrongAnswers}\nAttempts: ${attempts}\n`;
+    resultSummary += `Test Completed on: ${testCompletedOn}\n`;
+    resultSummary += `Start Time: ${new Date(startTime).toLocaleString('en-US', options)}\n`;
+    resultSummary += `End Time: ${new Date(endTime).toLocaleString('en-US', options)}\n`;
+    resultSummary += `Time Taken: ${Math.floor((endTime - startTime) / 60000)} minutes and ${Math.floor(((endTime - startTime) % 60000) / 1000)} seconds\n\n`;
+    resultSummary += `Total Time Taken: ${totalTimeTaken} minutes\n`;
+    resultSummary += `Average Time Per Question: ${averageTimePerQuestion.toFixed(2)} minutes\n`;
+    resultSummary += `Readiness Level: ${readinessLevel}\n\n`;
+    if (wrongQuestionNumbers.length > 0) {
+      resultSummary += `Questions you got wrong: Question ${wrongQuestionNumbers.join(", ")}\n\n`;
+    }
+    resultSummary += motivational;
 
-  // Random motivational message
-  let motivational;
-  if (passStatus === "Pass") {
-    motivational = motivationalMessagesPass[Math.floor(Math.random() * motivationalMessagesPass.length)];
-  } else {
-    motivational = motivationalMessagesFail[Math.floor(Math.random() * motivationalMessagesFail.length)];
+    // Display result summary
+    document.getElementById('quiz-content').style.display = 'none';
+    resultDataDiv.style.display = "block";
+    resultDataDiv.style.whiteSpace = "pre-wrap";
+    resultDataDiv.style.backgroundColor = "#fff";
+    resultDataDiv.style.color = "#001f3d";
+    resultDataDiv.style.padding = "1rem";
+    resultDataDiv.style.marginTop = "1rem";
+    resultDataDiv.innerText = resultSummary;
+
+    // Show Restart, Home, and Print buttons
+    endQuizBtn.style.display = "none";
+    restartBtn.style.display = "inline-block";
+    homeBtn.style.display = "inline-block";
+    document.getElementById('print-results').style.display = "inline-block";
   }
-  motivational = motivational.replace("{user}", userName);
-
- // Build result summary
-let resultSummary = `CompTIA Sec+ Test Results\n\n`;
-resultSummary += `Name: ${userName}\nScore: ${scorePercentage}% (${passStatus})\nCorrect Answers: ${correctAnswers}\nWrong Answers: ${wrongAnswers}\nAttempts: ${attempts}\n`;
-resultSummary += `Test Completed on: ${testCompletedOn}\n`;
-resultSummary += `Start Time: ${new Date(startTime).toLocaleString('en-US', options)}\n`;
-resultSummary += `End Time: ${new Date(endTime).toLocaleString('en-US', options)}\n`;
-resultSummary += `Time Taken: ${Math.floor((endTime - startTime) / 60000)} minutes and ${Math.floor(((endTime - startTime) % 60000) / 1000)} seconds\n\n`;
-resultSummary += `Total Time Taken: ${totalTimeTaken} minutes\n`;
-resultSummary += `Average Time Per Question: ${averageTimePerQuestion.toFixed(2)} minutes\n`;
-resultSummary += `Readiness Level: ${readinessLevel}\n\n`;
-if (wrongQuestionNumbers.length > 0) {
-  resultSummary += `Questions you got wrong: Question ${wrongQuestionNumbers.join(", ")}\n\n`;
-}
-resultSummary += motivational;
-
-  // Display result summary
-  document.getElementById('quiz-content').style.display = 'none';
-  resultDataDiv.style.display = "block";
-  resultDataDiv.style.whiteSpace = "pre-wrap";
-  resultDataDiv.style.backgroundColor = "#fff";
-  resultDataDiv.style.color = "#001f3d";
-  resultDataDiv.style.padding = "1rem";
-  resultDataDiv.style.marginTop = "1rem";
-  resultDataDiv.innerText = resultSummary;
-
-  // Show Restart, Home, and Print buttons
-  endQuizBtn.style.display = "none";
-  restartBtn.style.display = "inline-block";
-  homeBtn.style.display = "inline-block";
-  document.getElementById('print-results').style.display = "inline-block";
-
-    // Remove confirmation dialog
-    confirmationDialog.remove();
-  });
+});
 
 // Add event listener to restart button
 restartBtn.addEventListener("click", () => {
@@ -6868,8 +6822,7 @@ restartBtn.addEventListener("click", () => {
   wrongAnswers = 0;
   currentQuestion = 0;
   wrongQuestionNumbers = [];
-  answeredQuestions = new Set(); // Create a new Set instance
-  startQuestionIndex = selectedRangeStart - 1; // Recalculate startQuestionIndex
+  answeredQuestions = new Set();
 
   // Increment attempts counter
   attempts++;
@@ -6886,6 +6839,10 @@ restartBtn.addEventListener("click", () => {
   restartBtn.style.display = "none";
   homeBtn.style.display = "none";
   document.getElementById('print-results').style.display = "none";
+
+  // Update correct and wrong answer displays
+  correctCount.textContent = `Correct: ${correctAnswers}`;
+  wrongCount.textContent = `Wrong: ${wrongAnswers}`;
 
   // Load first question
   loadQuestion(currentQuestion, startQuestionIndex);
@@ -6925,6 +6882,7 @@ document.querySelector('.info-icon').addEventListener('click', () => {
 
     // Initialize question count options
     populateQuestionCount();
+
   </script>
 </body>
 </html>
