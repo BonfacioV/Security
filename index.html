@@ -222,12 +222,12 @@
   <select id="question-count">
     <!-- Options will be dynamically populated -->
   </select>
-  <label for="num-questions">Nr of Qs (Ignore for now guys):</label>
+  <label for="num-questions">Ignore:</label>
   <select id="num-questions">
     <option value="10">10 Questions</option>
     <option value="20">20 Questions</option>
     <option value="30">30 Questions</option>
-    <option value="60">All 60 Questions</option>
+    <option value="60">All 78 Questions</option>
   </select>
   <label for="timer-duration">Test Duration:</label>
   <select id="timer-duration">
@@ -254,7 +254,7 @@
         <span id="questions-left">Questions Left: 0</span>
         <span id="attempts">Attempts: 1</span>
         <i class="fas fa-info-circle info-icon" title="Click for info"></i>
-        <div class="info-message">Only the first answer submission counts. Changing an answer won't update the score. Questions now display randomly within the selected range.</div>
+        <div class="info-message">Only the first answer submission for each question, counts. Changing an answer won't update the score. Questions now display randomly within the selected range.</div>
       </div>
       <div id="timer">Time Left: 00:00</div>
       <div id="progress-bar">
@@ -6729,7 +6729,7 @@ submitBtn.addEventListener("click", submitAnswer);
 function submitAnswer() {
   // Check if an option is selected
   if (selectedOptions.length === 0) {
-    resultParagraph.textContent = "You haven't selected any answers.";
+    resultParagraph.textContent = "Please select an answer!";
     resultParagraph.style.color = "orange";
     return;
   }
@@ -6788,7 +6788,7 @@ function checkAnswerCorrectness(questionObj, selectedOptionIndices) {
 function updateAnswerDisplays(isCorrect, questionObj, originalQuestionIndex) {
   if (isCorrect) {
     correctAnswers++;
-    resultParagraph.textContent = "Correct!";
+    resultParagraph.textContent = "Top Student for sure! Correct.";
     resultParagraph.style.color = "green";
   } else {
     wrongAnswers++;
@@ -6849,8 +6849,8 @@ endQuizBtn.addEventListener("click", () => {
     const scorePercentage = Math.round((correctAnswers / totalQuestions) * 100);
     const passStatus = scorePercentage >= 85 ? "Pass" : "Fail";
 
-// Determine readiness level based on score percentage
-let readinessLevel;
+    // Determine readiness level based on score percentage
+    let readinessLevel;
     if (scorePercentage >= 90) {
       readinessLevel = "Wena man, Top Student for sure! - uJesu uthi you're ready for the exam!";
     } else if (scorePercentage >= 80) {
@@ -6860,7 +6860,6 @@ let readinessLevel;
     } else {
       readinessLevel = "Haikhona! - uJesu uthi there's no hope shem!";
     }
-
 
     // Get current date and time
     const now = new Date();
@@ -6887,16 +6886,17 @@ let readinessLevel;
     // Build result summary
     let resultSummary = `CompTIA Sec+ Test Results\n\n`;
     resultSummary += `Name: ${userName}\nScore: ${scorePercentage}% (${passStatus})\nCorrect Answers: ${correctAnswers}\nWrong Answers: ${wrongAnswers}\nAttempts: ${attempts}\n`;
-    resultSummary += `Test Completed on: ${testCompletedOn}\n`;
+    resultSummary += `Range Selected: Questions ${selectedRangeStart} - ${selectedRangeEnd}\n`;
+    resultSummary += `Time Limit: ${timerDurationSelect.value} minutes\n`;
+    resultSummary += `Test Completed on: ${testCompletedOn}\n\n`;
     resultSummary += `Start Time: ${new Date(startTime).toLocaleString('en-US', options)}\n`;
     resultSummary += `End Time: ${new Date(endTime).toLocaleString('en-US', options)}\n`;
-    resultSummary += `Time Taken: ${Math.floor((endTime - startTime) / 60000)} minutes and ${Math.floor(((endTime - startTime) % 60000) / 1000)} seconds\n\n`;
-    resultSummary += `Total Time Taken: ${totalTimeTaken} minutes\n`;
+    resultSummary += `Time Taken: ${Math.floor((endTime - startTime) / 60000)} minutes and ${Math.floor(((endTime - startTime) % 60000) / 1000)} seconds`;
     resultSummary += `Average Time Per Question: ${averageTimePerQuestion.toFixed(2)} minutes\n`;
-    resultSummary += `Readiness Level: ${readinessLevel}\n\n`;
     if (wrongQuestionNumbers.length > 0) {
       resultSummary += `Questions you got wrong: Question ${wrongQuestionNumbers.join(", ")}\n\n`;
     }
+    resultSummary += `Readiness Level: ${readinessLevel}\n\n`;
     resultSummary += motivational;
 
     // Display result summary
@@ -6909,14 +6909,13 @@ let readinessLevel;
     resultDataDiv.style.marginTop = "1rem";
     resultDataDiv.innerText = resultSummary;
 
-    // Show Restart, Home, and Print buttons
-    endQuizBtn.style.display = "none";
-    restartBtn.style.display = "inline-block";
-    homeBtn.style.display = "inline-block";
-    document.getElementById('print-results').style.display = "inline-block";
+// Show Restart, Home, and Print buttons
+endQuizBtn.style.display = "none";
+restartBtn.style.display = "inline-block";
+homeBtn.style.display = "inline-block";
+document.getElementById('print-results').style.display = "inline-block";
   }
 });
-
 
 restartBtn.addEventListener("click", () => {
   // Clear existing interval
