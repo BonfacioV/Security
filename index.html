@@ -216,19 +216,14 @@
     <p>Enter your name and the default password to start:</p>
     <input type="text" id="user-name" placeholder="Your Name" />
     <input type="password" id="user-password" placeholder="Password" />
-    <button id="customize-toggle">Click to Customise Test</button>
+    <button id="customize-toggle">Customise Test</button>
 <div id="customize-test">
   <label for="question-count">Select Question Range:</label>
   <select id="question-count">
     <!-- Options will be dynamically populated -->
   </select>
-  <label for="num-questions">Ignore:</label>
-  <select id="num-questions">
-    <option value="10">10 Questions</option>
-    <option value="20">20 Questions</option>
-    <option value="30">30 Questions</option>
-    <option value="60">All 78 Questions</option>
-  </select>
+  <label for="num-questions">Select Totoal Questions</label>
+  <select id="num-questions"></select>
   <label for="timer-duration">Test Duration:</label>
   <select id="timer-duration">
     <option value="1800">30 mins</option>
@@ -417,7 +412,7 @@
     }
   },
   {
-    "question": "Question 11:\nSeveral employees received a fraudulent text message from someone claiming to be the Chief Executive Officer (CEO). The message stated: https://VirtuLearner.com 'I’m in an airport right now with no access to email. I need you to buy gift cards for employee recognition awards. Please send the gift cards to following email address.' Which of the following are the best responses to this situation? (Choose two).",
+    "question": "Question 11:\nSeveral employees received a fraudulent text message from someone claiming to be the Chief Executive Officer (CEO). The message stated: 'I’m in an airport right now with no access to email. I need you to buy gift cards for employee recognition awards. Please send the gift cards to following email address.' Which of the following are the best responses to this situation? (Choose two).",
     "options": [
       "A. Cancel current employee recognition gift cards.",
       "B. Add a smishing exercise to the annual company training.",
@@ -6486,7 +6481,7 @@
 
     // Global variables
 let currentQuestion = 0;
-let selectedOptions = []; 
+let selectedOptions = [];
 let correctAnswers = 0;
 let wrongAnswers = 0;
 let userName = "";
@@ -6495,7 +6490,7 @@ let timeLeft = 0;
 let timerInterval;
 let attempts = 1;
 let answeredQuestions = new Set();
-let wrongQuestionNumbers = []; 
+let wrongQuestionNumbers = [];
 let startTime = 0;
 let endTime = 0;
 let startQuestionIndex = 0;
@@ -6507,6 +6502,7 @@ let readinessLevel = "";
 let shuffledQuestionIndices = []; // Declare shuffledQuestionIndices as a global variable
 
 // DOM references
+const numQuestionsSelect = document.getElementById("num-questions");
 const questionTitle = document.getElementById("question-title");
 const optionsContainer = document.getElementById("options");
 const resultParagraph = document.getElementById("result");
@@ -6533,193 +6529,227 @@ const timerDisplay = document.getElementById("timer");
 
 // Toggle Customize Test section
 document.getElementById("customize-toggle").addEventListener("click", () => {
-  customizeTestDiv.style.display = customizeTestDiv.style.display === "none" ? "block" : "none";
+customizeTestDiv.style.display = customizeTestDiv.style.display === "none" ? "block" : "none";
 });
 
 // Populate question count options
 function populateQuestionCount() {
-  questionCountSelect.innerHTML = "";
-  const questionCount = 546;
-  const questionsPerRange = 78;
-  const ranges = Math.ceil(questionCount / questionsPerRange);
+questionCountSelect.innerHTML = "";
+const questionCount = 546;
+const questionsPerRange = 78;
+const ranges = Math.ceil(questionCount / questionsPerRange);
 
-  for (let i = 0; i < ranges; i++) {
-    const startQuestion = i * questionsPerRange + 1;
-    const endQuestion = Math.min(startQuestion + questionsPerRange - 1, questionCount);
-    const optionElement = document.createElement("option");
-    optionElement.value = startQuestion;
-    optionElement.textContent = `Questions ${startQuestion}-${endQuestion}`;
-    questionCountSelect.appendChild(optionElement);
-  }
-
-  questionCountSelect.value = questionCountSelect.options[0].value;
+for (let i = 0; i < ranges; i++) {
+const startQuestion = i * questionsPerRange + 1;
+const endQuestion = Math.min(startQuestion + questionsPerRange - 1, questionCount);
+const optionElement = document.createElement("option");
+optionElement.value = startQuestion;
+optionElement.textContent = `Questions ${startQuestion}-${endQuestion}`;
+questionCountSelect.appendChild(optionElement);
 }
+
+questionCountSelect.value = questionCountSelect.options[0].value;
+}
+
+// Populate num questions options
+function populateNumQuestions() {
+numQuestionsSelect.innerHTML = "";
+const numQuestionsOptions = [
+{ text: '78 Questions', value: '78' },
+{ text: '56 Questions', value: '56' },
+{ text: '26 Questions', value: '26' },
+];
+
+numQuestionsOptions.forEach((option) => {
+const optionElement = document.createElement("option");
+optionElement.textContent = option.text;
+optionElement.value = option.value;
+numQuestionsSelect.appendChild(optionElement);
+});
+}
+
+// Initialize both dropdowns
+populateQuestionCount();
+populateNumQuestions();
 
 // Function to shuffle an array
 function shuffleArray(array) {
-  for (let i = array.length - 1; i > 0; i--) {
-    const j = Math.floor(Math.random() * (i + 1));
-    [array[i], array[j]] = [array[j], array[i]];
-  }
-  return array;
+for (let i = array.length - 1; i > 0; i--) {
+const j = Math.floor(Math.random() * (i + 1));
+[array[i], array[j]] = [array[j], array[i]];
+}
+return array;
 }
 
 // Start quiz
 document.getElementById("begin-quiz").addEventListener("click", () => {
-  console.log("Starting quiz...");
-  userName = document.getElementById("user-name").value.trim();
-  const password = document.getElementById("user-password").value.trim();
-  const selectedText = questionCountSelect.options[questionCountSelect.selectedIndex].text;
-  const range = selectedText.replace("Questions ", "").split('-'); 
-  selectedRangeStart = parseInt(range[0]);
-  selectedRangeEnd = parseInt(range[1]);
-  totalQuestions = selectedRangeEnd - selectedRangeStart + 1; 
-  startQuestionIndex = selectedRangeStart - 1; 
-  currentQuestion = 0; 
-  timeLeft = parseInt(timerDurationSelect.value);
-  startTime = new Date().getTime(); 
-  
-  if (userName === "") {
-    alert("Enter your name first!");
-    return;
-  }
+console.log("Starting quiz...");
+userName = document.getElementById("user-name").value.trim();
+const password = document.getElementById("user-password").value.trim();
+const selectedText = questionCountSelect.options[questionCountSelect.selectedIndex].text;
+const range = selectedText.replace("Questions ", "").split('-');
+selectedRangeStart = parseInt(range[0]);
+selectedRangeEnd = parseInt(range[1]);
 
-  if (password !== "Bonny1166!") {
-    passwordError.style.display = "block";
-    return;
-  }
+// Get the selected number of questions, default to 78 if not customized
+const numQuestions = document.getElementById("num-questions").value;
+totalQuestions = numQuestions ? parseInt(numQuestions) : selectedRangeEnd - selectedRangeStart + 1;
 
-  passwordError.style.display = "none";
-  namePopup.style.display = "none";
-  quizContainer.style.display = "block";
-  userGreeting.textContent = `${userName}, are you the next Top Student?`;
-  
-  // Create an array of question indices within the selected range
-  let questionIndices = [];
-  for (let i = selectedRangeStart - 1; i < selectedRangeEnd; i++) {
-    questionIndices.push(i);
-  }
+startQuestionIndex = selectedRangeStart - 1;
+currentQuestion = 0;
+timeLeft = parseInt(timerDurationSelect.value);
+startTime = new Date().getTime();
 
-  // Shuffle the array of question indices
-  questionIndices = shuffleArray(questionIndices);
+if (userName === "") {
+alert("Enter your name first!");
+return;
+}
 
-  // Store the shuffled question indices
-  shuffledQuestionIndices = questionIndices;
+if (password !== "Bonny1166!") {
+passwordError.style.display = "block";
+return;
+}
 
-  // Check if shuffledQuestionIndices is defined and not empty
-  if (shuffledQuestionIndices && shuffledQuestionIndices.length > 0) {
-    // Load first question
-    loadQuestion(currentQuestion);
-  } else {
-    console.error("Shuffled question indices not defined or empty.");
-  }
+passwordError.style.display = "none";
 
-  startTimer();
+// Create an array of question indices within the selected range
+let questionIndices = [];
+for (let i = selectedRangeStart - 1; i < selectedRangeEnd; i++) {
+questionIndices.push(i);
+}
+
+// Shuffle the array of question indices
+questionIndices = shuffleArray(questionIndices);
+
+// Select the specified number of questions
+questionIndices = questionIndices.slice(0, totalQuestions);
+
+// Store the shuffled question indices
+shuffledQuestionIndices = questionIndices;
+
+// Load first question
+loadQuestion(currentQuestion);
+
+// Start timer
+startTimer();
+
+// Hide name popup and show quiz container
+namePopup.style.display = "none";
+quizContainer.style.display = "block";
+userGreeting.textContent = `Awe, ${userName}!`;
+
+// Update attempts display
+attemptsDisplay.textContent = `Attempts: ${attempts}`;
+
+// Update correct and wrong answer displays
+correctCount.textContent = `Correct: ${correctAnswers}`;
+wrongCount.textContent = `Wrong: ${wrongAnswers}`;
 });
+
 
 // Load question function
 function loadQuestion(index) {
-  if (answeredQuestions.has(index)) {
-    submitBtn.disabled = true; // Disable submit button if question has already been answered
-  } else {
-    submitBtn.disabled = false; // Re-enable submit button
-  }
+if (answeredQuestions.has(index)) {
+submitBtn.disabled = true; // Disable submit button if question has already been answered
+} else {
+submitBtn.disabled = false; // Re-enable submit button
+}
 
-  const originalQuestionIndex = shuffledQuestionIndices[index];
-  const questionObj = quizData[originalQuestionIndex];
+const originalQuestionIndex = shuffledQuestionIndices[index];
+const questionObj = quizData[originalQuestionIndex];
 
-  if (!questionObj) {
-    console.error(`No question found at index ${originalQuestionIndex}`);
-    alert("No more questions in this range.");
-    return;
-  }
+if (!questionObj) {
+console.error(`No question found at index ${originalQuestionIndex}`);
+alert("No more questions in this range.");
+return;
+}
 
-  // Validate correct property
-  if (questionObj.correct === undefined) {
-    console.error(`Correct answer is undefined for question at index ${originalQuestionIndex}`);
-    resultParagraph.textContent("Error: Correct answer is not defined for this question.");
-    resultParagraph.style.color = "orange";
-    return;
-  }
+// Validate correct property
+if (questionObj.correct === undefined) {
+console.error(`Correct answer is undefined for question at index ${originalQuestionIndex}`);
+resultParagraph.textContent("Error: Correct answer is not defined for this question.");
+resultParagraph.style.color = "orange";
+return;
+}
 
-  // Reset selected options for the new question
-  selectedOptions = [];
+// Reset selected options for the new question
+selectedOptions = [];
 
-  // Clear previous result and explanation
-  resultParagraph.textContent = "";
-  explanationDiv.style.display = "none";
+// Clear previous result and explanation
+resultParagraph.textContent = "";
+explanationDiv.style.display = "none";
 
-  // Display the question title
-  questionTitle.innerHTML = questionObj.question;
+// Display the question title
+questionTitle.innerHTML = questionObj.question;
 
-  // Display the explanation (hidden initially)
-  explanationDiv.textContent = questionObj.explanation;
+// Display the explanation (hidden initially)
+explanationDiv.textContent = questionObj.explanation;
 
-  // Clear the options container
-  optionsContainer.innerHTML = "";
+// Clear the options container
+optionsContainer.innerHTML = "";
 
-  // Add options for the current question
-  questionObj.options.forEach((option, i) => {
-    const optionDiv = document.createElement("div");
-    optionDiv.className = "option";
-    optionDiv.textContent = option;
+// Add options for the current question
+questionObj.options.forEach((option, i) => {
+const optionDiv = document.createElement("div");
+optionDiv.className = "option";
+optionDiv.textContent = option;
 
-    // Add click event listener to toggle selection
-    optionDiv.addEventListener("click", () => {
-      optionDiv.classList.toggle("selected");
+// Add click event listener to toggle selection
+optionDiv.addEventListener("click", () => {
+optionDiv.classList.toggle("selected");
 
-      // Add or remove the option index from selectedOptions
-      const optionIndex = selectedOptions.indexOf(i);
-      if (optionIndex === -1) {
-        selectedOptions.push(i); // Add if not already selected
-      } else {
-        selectedOptions.splice(optionIndex, 1); // Remove if already selected
-      }
-    });
+// Add or remove the option index from selectedOptions
+const optionIndex = selectedOptions.indexOf(i);
+if (optionIndex === -1) {
+selectedOptions.push(i); // Add if not already selected
+} else {
+selectedOptions.splice(optionIndex, 1); // Remove if already selected
+}
+});
 
-    // Append the option to the options container
-    optionsContainer.appendChild(optionDiv);
-  });
+// Append the option to the options container
+optionsContainer.appendChild(optionDiv);
+});
 
-  // Update the questions left display
-  questionsLeftDisplay.textContent = `Question ${index + 1} of ${totalQuestions}`;
+// Update the questions left display
+questionsLeftDisplay.textContent = `Question ${index + 1} of ${totalQuestions}`;
 
-  // Show/hide the End Test and Next buttons based on the current question
-  if (index === totalQuestions - 1) {
-    endQuizBtn.style.display = "inline-block";
-    nextBtn.style.display = "none";
-  } else {
-    endQuizBtn.style.display = "none";
-    nextBtn.style.display = "inline-block";
-  }
+// Show/hide the End Test and Next buttons based on the current question
+if (index === totalQuestions - 1) {
+endQuizBtn.style.display = "inline-block";
+nextBtn.style.display = "none";
+} else {
+endQuizBtn.style.display = "none";
+nextBtn.style.display = "inline-block";
+}
 
-  // Update the progress bar
-  updateProgressBar();
+// Update the progress bar
+updateProgressBar();
 
-  // Debugging logs (optional)
-  console.log(`Loaded question index: ${originalQuestionIndex}`);
-  console.log(`Question text: ${questionObj.question}`);
-  console.log(`Options: ${questionObj.options.join(", ")}`);
-  console.log(`Correct answer: ${questionObj.correct}`);
+// Debugging logs (optional)
+console.log(`Loaded question index: ${originalQuestionIndex}`);
+console.log(`Question text: ${questionObj.question}`);
+console.log(`Options: ${questionObj.options.join(", ")}`);
+console.log(`Correct answer: ${questionObj.correct}`);
 }
 
 // Timer function
 function startTimer() {
-  if (timeLeft <= 0) return;
+if (timeLeft <= 0) return;
 
-  timerInterval = setInterval(() => {
-    if (timeLeft <= 0) {
-      clearInterval(timerInterval);
-      alert("Time's up! Let's be quicker next time.");
-      endQuiz();
-    } else {
-      timeLeft--;
-      const hours = Math.floor(timeLeft / 3600);
-      const minutes = Math.floor((timeLeft % 3600) / 60);
-      const seconds = timeLeft % 60;
-      timerDisplay.textContent = `Time Left: ${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
-    }
-  }, 1000);
+timerInterval = setInterval(() => {
+if (timeLeft <= 0) {
+clearInterval(timerInterval);
+alert("Time's up! Let's be quicker next time.");
+endQuiz();
+} else {
+timeLeft--;
+const hours = Math.floor(timeLeft / 3600);
+const minutes = Math.floor((timeLeft % 3600) / 60);
+const seconds = timeLeft % 60;
+timerDisplay.textContent = `Time Left: ${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+}
+}, 1000);
 }
 
 // Submit answer button event listener
@@ -6727,284 +6757,281 @@ submitBtn.addEventListener("click", submitAnswer);
 
 // Submit answer function
 function submitAnswer() {
-  // Check if an option is selected
-  if (selectedOptions.length === 0) {
-    resultParagraph.textContent = "Please select an answer!";
-    resultParagraph.style.color = "orange";
-    return;
-  }
+// Check if an option is selected
+if (selectedOptions.length === 0) {
+resultParagraph.textContent = "Please select an answer!";
+resultParagraph.style.color = "orange";
+return;
+}
 
 
-  // Rest of the submitAnswer function remains the same
-  if (answeredQuestions.has(currentQuestion)) {
-    resultParagraph.textContent = "You can only submit an answer once per question.";
-    resultParagraph.style.color = "orange";
-    return;
-  }
+// Rest of the submitAnswer function remains the same
+if (answeredQuestions.has(currentQuestion)) {
+resultParagraph.textContent = "You can only submit an answer once per question.";
+resultParagraph.style.color = "orange";
+return;
+}
 
-  const selectedOptionIndices = selectedOptions;
-  const originalQuestionIndex = shuffledQuestionIndices[currentQuestion];
-  const questionObj = quizData[originalQuestionIndex];
+const selectedOptionIndices = selectedOptions;
+const originalQuestionIndex = shuffledQuestionIndices[currentQuestion];
+const questionObj = quizData[originalQuestionIndex];
 
-  if (!questionObj) {
-    console.error(`No question found at index ${originalQuestionIndex}`);
-    resultParagraph.textContent ("No more questions in this range.");
-    resultParagraph.style.color = "orange";
-    return;
-  }
+if (!questionObj) {
+console.error(`No question found at index ${originalQuestionIndex}`);
+resultParagraph.textContent ("No more questions in this range.");
+resultParagraph.style.color = "orange";
+return;
+}
 
-  // Validate correct property
-  if (questionObj.correct === undefined) {
-    resultParagraph.textContent("Error: Correct answer is not defined for this question.");
-    resultParagraph.style.color = "orange";
-    return;
-  }
+// Validate correct property
+if (questionObj.correct === undefined) {
+resultParagraph.textContent("Error: Correct answer is not defined for this question.");
+resultParagraph.style.color = "orange";
+return;
+}
 
-  const isCorrect = checkAnswerCorrectness(questionObj, selectedOptionIndices);
+const isCorrect = checkAnswerCorrectness(questionObj, selectedOptionIndices);
 
-  updateAnswerDisplays(isCorrect, questionObj, originalQuestionIndex);
-  displayExplanation(questionObj);
-  enableNextQuestionButton();
-  disableSubmitButton();
-  answeredQuestions.add(currentQuestion); // Add question to answeredQuestions set
+updateAnswerDisplays(isCorrect, questionObj, originalQuestionIndex);
+displayExplanation(questionObj);
+enableNextQuestionButton();
+disableSubmitButton();
+answeredQuestions.add(currentQuestion); // Add question to answeredQuestions set
 }
 
 // Check answer correctness function
 function checkAnswerCorrectness(questionObj, selectedOptionIndices) {
-  // Handle single correct answer
-  if (typeof questionObj.correct === "number") {
-    return selectedOptionIndices.includes(questionObj.correct);
-  }
-  // Handle multiple correct answers
-  else if (Array.isArray(questionObj.correct)) {
-    return (
-      questionObj.correct.length === selectedOptionIndices.length &&
-      questionObj.correct.every((ans) => selectedOptionIndices.includes(ans))
-    );
-  }
+// Handle single correct answer
+if (typeof questionObj.correct === "number") {
+return selectedOptionIndices.includes(questionObj.correct);
+}
+// Handle multiple correct answers
+else if (Array.isArray(questionObj.correct)) {
+return (
+questionObj.correct.length === selectedOptionIndices.length &&
+questionObj.correct.every((ans) => selectedOptionIndices.includes(ans))
+);
+}
 }
 
 // Update answer displays function
 function updateAnswerDisplays(isCorrect, questionObj, originalQuestionIndex) {
-  if (isCorrect) {
-    correctAnswers++;
-    resultParagraph.textContent = "Top Student for sure! Correct.";
-    resultParagraph.style.color = "green";
-  } else {
-    wrongAnswers++;
-    wrongQuestionNumbers.push(originalQuestionIndex + 1);
-    resultParagraph.textContent = `Haibo! The correct answer is ${questionObj.options[questionObj.correct]}.`;
-    resultParagraph.style.color = "red";
-  }
+if (isCorrect) {
+correctAnswers++;
+resultParagraph.textContent = "Top Student for sure! Correct.";
+resultParagraph.style.color = "green";
+} else {
+wrongAnswers++;
+wrongQuestionNumbers.push(originalQuestionIndex + 1);
+resultParagraph.textContent = `Haikhona! The correct answer is ${questionObj.options[questionObj.correct]}.`;
+resultParagraph.style.color = "red";
+}
 
-  correctCount.textContent = `Correct: ${correctAnswers}`;
-  wrongCount.textContent = `Wrong: ${wrongAnswers}`;
+correctCount.textContent = `Correct: ${correctAnswers}`;
+wrongCount.textContent = `Wrong: ${wrongAnswers}`;
 }
 
 // Display explanation function
 function displayExplanation(questionObj) {
-  explanationDiv.textContent = questionObj.explanation;
-  explanationDiv.style.display = "block";
+explanationDiv.textContent = questionObj.explanation;
+explanationDiv.style.display = "block";
 }
 
 // Enable next question button function
 function enableNextQuestionButton() {
-  nextBtn.disabled = false;
+nextBtn.disabled = false;
 }
 
 // Disable submit button function
 function disableSubmitButton() {
-  submitBtn.disabled = true;
+submitBtn.disabled = true;
 }
 
 // Next question button click event
 nextBtn.addEventListener("click", () => {
-  if (currentQuestion < totalQuestions - 1) {
-    currentQuestion++;
-    loadQuestion(currentQuestion);
-  }
+if (currentQuestion < totalQuestions - 1) {
+currentQuestion++;
+loadQuestion(currentQuestion);
+}
 });
 
 // Previous question button click event
 prevBtn.addEventListener("click", () => {
-  if (currentQuestion > 0) {
-    currentQuestion--;
-    loadQuestion(currentQuestion);
-  }
+if (currentQuestion > 0) {
+currentQuestion--;
+loadQuestion(currentQuestion);
+}
 });
 
 // End quiz button click event
 endQuizBtn.addEventListener("click", () => {
-  if (confirm("Are you sure you want to end the test?")) {
-    // Record end time
-    endTime = new Date().getTime();
-    
-    // Calculate total time taken
-    totalTimeTaken = Math.floor((endTime - startTime) / 60000);
-    
-    // Calculate average time per question
-    averageTimePerQuestion = totalTimeTaken / totalQuestions;
-    
-    // Calculate score percentage
-    const scorePercentage = Math.round((correctAnswers / totalQuestions) * 100);
-    const passStatus = scorePercentage >= 85 ? "Pass" : "Fail";
+if (confirm("Are you sure you want to end the test?")) {
+// Record end time
+endTime = new Date().getTime();
 
-    // Determine readiness level based on score percentage
-    let readinessLevel;
-    if (scorePercentage >= 90) {
-      readinessLevel = "Wena man, Top Student for sure! - uJesu uthi you're ready for the exam!";
-    } else if (scorePercentage >= 80) {
-      readinessLevel = "Amper - uJesu uthi you're on track, mara you need small touch ups nyana.";
-    } else if (scorePercentage >= 70) {
-      readinessLevel = "Yoh - uJesu uthi he's slightly worried. Mara you're getting there.";
-    } else {
-      readinessLevel = "Haikhona! - uJesu uthi there's no hope shem!";
-    }
+// Calculate total time taken
+totalTimeTaken = Math.floor((endTime - startTime) / 60000);
 
-    // Get current date and time
-    const now = new Date();
-    const options = {
-      weekday: 'short',
-      year: 'numeric',
-      month: 'short',
-      day: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit',
-      hour12: true
-    };
-    const testCompletedOn = now.toLocaleString('en-US', options);
+// Calculate average time per question
+averageTimePerQuestion = totalTimeTaken / totalQuestions;
 
-    // Random motivational message
-    let motivational;
-    if (passStatus === "Pass") {
-      motivational = motivationalMessagesPass[Math.floor(Math.random() * motivationalMessagesPass.length)];
-    } else {
-      motivational = motivationalMessagesFail[Math.floor(Math.random() * motivationalMessagesFail.length)];
-    }
-    motivational = motivational.replace("{user}", userName);
+// Calculate score percentage
+const scorePercentage = Math.round((correctAnswers / totalQuestions) * 100);
+const passStatus = scorePercentage >= 85 ? "Pass" : "Fail";
 
-    // Build result summary
-    let resultSummary = `CompTIA Sec+ Test Results\n\n`;
-    resultSummary += `Name: ${userName}\nScore: ${scorePercentage}% (${passStatus})\nCorrect Answers: ${correctAnswers}\nWrong Answers: ${wrongAnswers}\nAttempts: ${attempts}\n`;
-    resultSummary += `Range Selected: Questions ${selectedRangeStart} - ${selectedRangeEnd}\n`;
-    resultSummary += `Time Limit: ${timerDurationSelect.value} minutes\n`;
-    resultSummary += `Test Completed on: ${testCompletedOn}\n\n`;
-    resultSummary += `Start Time: ${new Date(startTime).toLocaleString('en-US', options)}\n`;
-    resultSummary += `End Time: ${new Date(endTime).toLocaleString('en-US', options)}\n`;
-    resultSummary += `Time Taken: ${Math.floor((endTime - startTime) / 60000)} minutes and ${Math.floor(((endTime - startTime) % 60000) / 1000)} seconds`;
-    resultSummary += `Average Time Per Question: ${averageTimePerQuestion.toFixed(2)} minutes\n`;
-    if (wrongQuestionNumbers.length > 0) {
-      resultSummary += `Questions you got wrong: Question ${wrongQuestionNumbers.join(", ")}\n\n`;
-    }
-    resultSummary += `Readiness Level: ${readinessLevel}\n\n`;
-    resultSummary += motivational;
+// Determine readiness level based on score percentage
+let readinessLevel;
+if (scorePercentage >= 90) {
+readinessLevel = "Wena man, Top Student for sure! - uJesu uthi you're ready for the exam!";
+} else if (scorePercentage >= 80) {
+readinessLevel = "Amper - uJesu uthi you're on track, mara you need small touch ups nyana.";
+} else if (scorePercentage >= 70) {
+readinessLevel = "Yoh - uJesu uthi he's slightly worried. Mara you're getting there.";
+} else {
+readinessLevel = "Haikhona! - uJesu uthi there's no hope shem!";
+}
 
-    // Display result summary
-    document.getElementById('quiz-content').style.display = 'none';
-    resultDataDiv.style.display = "block";
-    resultDataDiv.style.whiteSpace = "pre-wrap";
-    resultDataDiv.style.backgroundColor = "#fff";
-    resultDataDiv.style.color = "#001f3d";
-    resultDataDiv.style.padding = "1rem";
-    resultDataDiv.style.marginTop = "1rem";
-    resultDataDiv.innerText = resultSummary;
+// Get current date and time
+const now = new Date();
+const options = {
+weekday: 'short',
+year: 'numeric',
+month: 'short',
+day: 'numeric',
+hour: '2-digit',
+minute: '2-digit',
+hour12: true
+};
+const testCompletedOn = now.toLocaleString('en-US', options);
+
+// Random motivational message
+let motivational;
+if (passStatus === "Pass") {
+motivational = motivationalMessagesPass[Math.floor(Math.random() * motivationalMessagesPass.length)];
+} else {
+motivational = motivationalMessagesFail[Math.floor(Math.random() * motivationalMessagesFail.length)];
+}
+motivational = motivational.replace("{user}", userName);
+
+// Build result summary
+let resultSummary = `CompTIA Sec+ Test Results\n\n`;
+resultSummary += `Name: ${userName}\nScore: ${scorePercentage}% (${passStatus})\nCorrect Answers: ${correctAnswers}\nWrong Answers: ${wrongAnswers}\nAttempts: ${attempts}\n`;
+resultSummary += `Range Selected: Questions ${selectedRangeStart} - ${selectedRangeEnd}\n`;
+resultSummary += `Number of Questions: ${totalQuestions}\n`;
+resultSummary += `Time Limit: ${Math.floor(parseInt(timerDurationSelect.value) / 60)} minutes\n`;
+resultSummary += `Test Completed on: ${testCompletedOn}\n\n`;
+resultSummary += `Start Time: ${new Date(startTime).toLocaleString('en-US', options)}\n`;
+resultSummary += `End Time: ${new Date(endTime).toLocaleString('en-US', options)}\n`;
+resultSummary += `Time Taken: ${Math.floor((endTime - startTime) / 60000)} minutes and ${Math.floor(((endTime - startTime) % 60000) / 1000)} seconds\n`;
+resultSummary += `Average Time Per Question: ${averageTimePerQuestion.toFixed(2)} minutes\n`;
+if (wrongQuestionNumbers.length > 0) {
+  resultSummary += `Questions you got wrong: Question ${wrongQuestionNumbers.join(", ")}\n\n`;
+}
+resultSummary += `Readiness Level: ${readinessLevel}\n\n`;
+resultSummary += motivational;
+
+// Display result summary
+document.getElementById('quiz-content').style.display = 'none';
+resultDataDiv.style.display = "block";
+resultDataDiv.style.whiteSpace = "pre-wrap";
+resultDataDiv.style.backgroundColor = "#fff";
+resultDataDiv.style.color = "#001f3d";
+resultDataDiv.style.padding = "1rem";
+resultDataDiv.style.marginTop = "1rem";
+resultDataDiv.innerText = resultSummary;
 
 // Show Restart, Home, and Print buttons
 endQuizBtn.style.display = "none";
 restartBtn.style.display = "inline-block";
 homeBtn.style.display = "inline-block";
 document.getElementById('print-results').style.display = "inline-block";
-  }
+}
 });
 
 restartBtn.addEventListener("click", () => {
-  // Clear existing interval
-  if (timerInterval) {
-    clearInterval(timerInterval);
-  }
+// Clear existing interval
+if (timerInterval) {
+clearInterval(timerInterval);
+}
 
-  // Hide results summary
-  document.getElementById('quiz-content').style.display = 'block';
-  resultDataDiv.style.display = "none";
+// Hide results summary
+document.getElementById('quiz-content').style.display = 'block';
+resultDataDiv.style.display = "none";
 
-  // Restart whole test
-  correctAnswers = 0;
-  wrongAnswers = 0;
-  attempts++;
-  currentQuestion = 0;
-  wrongQuestionNumbers = [];
-  answeredQuestions = new Set();
-  shuffledQuestionIndices = [];
+// Restart whole test
+correctAnswers = 0;
+wrongAnswers = 0;
+attempts++;
+currentQuestion = 0;
+wrongQuestionNumbers = [];
+answeredQuestions = new Set();
+shuffledQuestionIndices = [];
 
-  // Use the previously selected range
-  const selectedText = questionCountSelect.options[questionCountSelect.selectedIndex].text;
-  const range = selectedText.replace("Questions ", "").split('-'); 
-  selectedRangeStart = parseInt(range[0]);
-  selectedRangeEnd = parseInt(range[1]);
-  totalQuestions = selectedRangeEnd - selectedRangeStart + 1; 
-  startQuestionIndex = selectedRangeStart - 1; 
+// Use the previously selected range
+const selectedText = questionCountSelect.options[questionCountSelect.selectedIndex].text;
+const range = selectedText.replace("Questions ", "").split('-');
+selectedRangeStart = parseInt(range[0]);
+selectedRangeEnd = parseInt(range[1]);
+totalQuestions = selectedRangeEnd - selectedRangeStart + 1;
+startQuestionIndex = selectedRangeStart - 1;
 
-  // Create an array of question indices within the selected range
-  let questionIndices = [];
-  for (let i = selectedRangeStart - 1; i < selectedRangeEnd; i++) {
-    questionIndices.push(i);
-  }
+// Create an array of question indices within the selected range
+let questionIndices = [];
+for (let i = selectedRangeStart - 1; i < selectedRangeEnd; i++) {
+questionIndices.push(i);
+}
 
-  // Shuffle the array of question indices
-  questionIndices = shuffleArray(questionIndices);
+// Shuffle the array of question indices
+questionIndices = shuffleArray(questionIndices);
 
-  // Store the shuffled question indices
-  shuffledQuestionIndices = questionIndices;
+// Store the shuffled question indices
+shuffledQuestionIndices = questionIndices;
 
-  // Load first question
-  loadQuestion(currentQuestion);
+// Load first question
+loadQuestion(currentQuestion);
 
-  // Use the previously selected time range
-  timeLeft = parseInt(timerDurationSelect.value);
+// Use the previously selected time range
+timeLeft = parseInt(timerDurationSelect.value);
 
-  // Start new timer
-  startTimer();
+// Start new timer
+startTimer();
 
-  // Update attempts display
-  attemptsDisplay.textContent = `Attempts: ${attempts}`;
+// Update attempts display
+attemptsDisplay.textContent = `Attempts: ${attempts}`;
 
-  // Update correct and wrong answer displays
-  correctCount.textContent = `Correct: ${correctAnswers}`;
-  wrongCount.textContent = `Wrong: ${wrongAnswers}`;
+// Update correct and wrong answer displays
+correctCount.textContent = `Correct: ${correctAnswers}`;
+wrongCount.textContent = `Wrong: ${wrongAnswers}`;
 
-  // Reset buttons
-  endQuizBtn.style.display = "inline-block";
-  restartBtn.style.display = "none";
-  homeBtn.style.display = "none";
-  document.getElementById('print-results').style.display = "none";
+// Reset buttons
+endQuizBtn.style.display = "inline-block";
+restartBtn.style.display = "none";
+homeBtn.style.display = "none";
+document.getElementById('print-results').style.display = "none";
 });
 
 // Add event listener to home button
 homeBtn.addEventListener("click", () => {
-  location.reload();
+location.reload();
 });
 
 
 // Add event listener to print results button
 document.getElementById('print-results').addEventListener("click", () => {
-  // Print result summary
-  window.print();
+// Print result summary
+window.print();
 });
 
 // Update progress bar
 function updateProgressBar() {
-  const progressPercentage = ((currentQuestion + 1) / totalQuestions) * 100;
-  document.getElementById('progress').style.width = `${progressPercentage}%`;
+const progressPercentage = ((currentQuestion + 1) / totalQuestions) * 100;
+document.getElementById('progress').style.width = `${progressPercentage}%`;
 }
 
 // Add event listener to info icon
 document.querySelector('.info-icon').addEventListener('click', () => {
-  document.querySelector('.info-message').style.display = document.querySelector('.info-message').style.display === 'block' ? 'none' : 'block';
+document.querySelector('.info-message').style.display = document.querySelector('.info-message').style.display === 'block' ? 'none' : 'block';
 });
-
-
-// Initialize question count options
-populateQuestionCount();
 
   </script>
 </body>
