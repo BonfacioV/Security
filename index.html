@@ -8207,33 +8207,41 @@
         });
 
       // Populate question count options
-      function populateQuestionCount() {
-        questionCountSelect.innerHTML = "";
-        const questionCount = 624;
-        const questionsPerRange = 78;
-        const ranges = Math.ceil(questionCount / questionsPerRange);
+function populateQuestionCount() {
+  questionCountSelect.innerHTML = "";
+  const totalQuestions = 624;
+  const acronymQuestions = 78;
+  const nonAcronymQuestions = totalQuestions - acronymQuestions;
+  const questionsPerRange = 78;
+  const ranges = Math.ceil(totalQuestions / questionsPerRange);
 
-        for (let i = 0; i < ranges; i++) {
-          const startQuestion = i * questionsPerRange + 1;
-          const endQuestion = Math.min(
-            startQuestion + questionsPerRange - 1,
-            questionCount
-          );
-          const optionElement = document.createElement("option");
-          optionElement.value = startQuestion;
+  // Add "All Questions" option
+  const allQuestionsOption = document.createElement("option");
+  allQuestionsOption.value = "all";
+  allQuestionsOption.textContent = "All Questions";
+  questionCountSelect.appendChild(allQuestionsOption);
 
-          // Add Acronyms label for the new range of questions
-          if (startQuestion === 547) {
-            optionElement.textContent = `Questions ${startQuestion}-${endQuestion} (Acronyms)`;
-          } else {
-            optionElement.textContent = `Questions ${startQuestion}-${endQuestion}`;
-          }
+  for (let i = 0; i < ranges; i++) {
+    const startQuestion = i * questionsPerRange + 1;
+    const endQuestion = Math.min(
+      startQuestion + questionsPerRange - 1,
+      totalQuestions
+    );
+    const optionElement = document.createElement("option");
+    optionElement.value = startQuestion;
 
-          questionCountSelect.appendChild(optionElement);
-        }
+    if (startQuestion === 547) {
+      optionElement.textContent = `Questions ${startQuestion}-${endQuestion} (Acronyms)`;
+    } else {
+      optionElement.textContent = `Questions ${startQuestion}-${endQuestion}`;
+    }
 
-        questionCountSelect.value = questionCountSelect.options[0].value;
-      }
+    questionCountSelect.appendChild(optionElement);
+  }
+
+  questionCountSelect.value = questionCountSelect.options[0].value;
+}
+      
       // Populate num questions options
       function populateNumQuestions() {
         numQuestionsSelect.innerHTML = "";
@@ -8265,72 +8273,79 @@
       }
 
       // Start quiz
-      document.getElementById("begin-quiz").addEventListener("click", () => {
-        console.log("Starting quiz...");
-        userName = document.getElementById("user-name").value.trim();
-        const password = document.getElementById("user-password").value.trim();
-        const selectedText =
-          questionCountSelect.options[questionCountSelect.selectedIndex].text;
-        const range = selectedText.replace("Questions ", "").split("-");
-        selectedRangeStart = parseInt(range[0]);
-        selectedRangeEnd = parseInt(range[1]);
+document.getElementById("begin-quiz").addEventListener("click", () => {
+  console.log("Starting quiz...");
+  userName = document.getElementById("user-name").value.trim();
+  const password = document.getElementById("user-password").value.trim();
+  const selectedText =
+    questionCountSelect.options[questionCountSelect.selectedIndex].text;
+  const selectedValue =
+    questionCountSelect.options[questionCountSelect.selectedIndex].value;
 
-        // Get the selected number of questions, default to 78 if not customized
-        const numQuestions = document.getElementById("num-questions").value;
-        totalQuestions = numQuestions
-          ? parseInt(numQuestions)
-          : selectedRangeEnd - selectedRangeStart + 1;
+  if (selectedValue === "all") {
+    selectedRangeStart = 1;
+    selectedRangeEnd = 546; // Exclude acronym questions
+    totalQuestions = selectedRangeEnd - selectedRangeStart + 1;
+  } else {
+    const range = selectedText.replace("Questions ", "").split("-");
+    selectedRangeStart = parseInt(range[0]);
+    selectedRangeEnd = parseInt(range[1]);
 
-        startQuestionIndex = selectedRangeStart - 1;
-        currentQuestion = 0;
-        timeLeft = parseInt(timerDurationSelect.value);
-        startTime = new Date().getTime();
+    // Get the selected number of questions
+    const numQuestions = document.getElementById("num-questions").value;
+    totalQuestions = numQuestions ? parseInt(numQuestions) : selectedRangeEnd - selectedRangeStart + 1;
+  }
 
-        if (userName === "") {
-          alert("Enter your name first!");
-          return;
-        }
+  startQuestionIndex = selectedRangeStart - 1;
+  currentQuestion = 0;
+  timeLeft = parseInt(timerDurationSelect.value);
+  startTime = new Date().getTime();
 
-        if (password !== "Bonny1166!") {
-          passwordError.style.display = "block";
-          return;
-        }
+  if (userName === "") {
+    alert("Enter your name first!");
+    return;
+  }
 
-        passwordError.style.display = "none";
+  if (password !== "Bonny1166!") {
+    passwordError.style.display = "block";
+    return;
+  }
 
-        // Create an array of question indices within the selected range
-        let questionIndices = [];
-        for (let i = selectedRangeStart - 1; i < selectedRangeEnd; i++) {
-          questionIndices.push(i);
-        }
+  passwordError.style.display = "none";
 
-        // Shuffle the array of question indices
-        questionIndices = shuffleArray(questionIndices);
+    // Create an array of question indices within the selected range
+    let questionIndices = [];
+  for (let i = selectedRangeStart - 1; i < selectedRangeEnd; i++) {
+    questionIndices.push(i);
+  }
 
-        // Select the specified number of questions
-        questionIndices = questionIndices.slice(0, totalQuestions);
+  // Shuffle the array of question indices
+  questionIndices = shuffleArray(questionIndices);
 
-        // Store the shuffled question indices
-        shuffledQuestionIndices = questionIndices;
+  // Select the specified number of questions
+  questionIndices = questionIndices.slice(0, totalQuestions);
 
-        // Load first question
-        loadQuestion(currentQuestion);
+  // Store the shuffled question indices
+  shuffledQuestionIndices = questionIndices;
 
-        // Start timer
-        startTimer();
+  // Load first question
+  loadQuestion(currentQuestion);
 
-        // Hide name popup and show quiz container
-        namePopup.style.display = "none";
-        quizContainer.style.display = "block";
-        userGreeting.textContent = `Awe, ${userName}!`;
+  // Start timer
+  startTimer();
 
-        // Update attempts display
-        attemptsDisplay.textContent = `Attempts: ${attempts}`;
+  // Hide name popup and show quiz container
+  namePopup.style.display = "none";
+  quizContainer.style.display = "block";
+  userGreeting.textContent = `Awe, ${userName}!`;
 
-        // Update correct and wrong answer displays
-        correctCount.textContent = `Correct: ${correctAnswers}`;
-        wrongCount.textContent = `Wrong: ${wrongAnswers}`;
-      });
+  // Update attempts display
+  attemptsDisplay.textContent = `Attempts: ${attempts}`;
+
+  // Update correct and wrong answer displays
+  correctCount.textContent = `Correct: ${correctAnswers}`;
+  wrongCount.textContent = `Wrong: ${wrongAnswers}`;
+});
 
       // Load question function
       function loadQuestion(index) {
