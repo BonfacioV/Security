@@ -86,7 +86,7 @@
         margin-top: 2rem;
         display: flex;
         gap: 1rem;
-        justify-content: center;
+        justify-content: left;
       }
       #tracker {
         margin-bottom: 1rem;
@@ -170,18 +170,18 @@
       }
       #progress-bar {
         width: 100%;
-        height: 15px;
-        background-color: #e9ecef;
+        height: 10px;
+        background-color: #000000;
         border-radius: 10px;
-        border-color: #001f3d;
-        margin-bottom: 0.5rem;
+        border-color: #00e9f9;
+        margin-bottom: 0.2rem;
         overflow: hidden;
       }
       #progress {
         height: 100%;
         background-color: #01b725;
         width: 0%;
-        transition: width 0.9s ease;
+        transition: width 1s ease;
       }
       .info-icon {
         margin-left: 0.5rem;
@@ -278,9 +278,7 @@
           <span id="attempts">Attempts: 1</span>
           <i class="fas fa-info-circle info-icon" title="Click for info"></i>
           <div class="info-message">
-            Only the first answer submission for each question, counts. Changing
-            an answer won't update the score. Questions now display randomly
-            within the selected range.
+            Only the first answer submission for each question, counts!
           </div>
         </div>
         <div id="timer">Time Left: 00:00</div>
@@ -4328,10 +4326,10 @@
           question:
             "Question 321:\nThe security team has been asked to only enable host A (10.2.2.7) and host B (10.3.9.9) to the new isolated network segment (10.9.8.14) that provides access to legacy devices. Access from all other hosts should be blocked. Which of the following entries would need to be added on the firewall?",
           options: [
-            "A. Not provided",
-            "B. Not provided",
-            "C. A specific entry to allow access from hosts A and B, blocking all others",
-            "D. Not provided",
+            "A. Permit 10.2.2.0/24 to 10.9.8.14/27, and Permit 10.3.9.0/24 to 10.9.8.14/27, and Deny 0.0.0.0/0 to 10.9.8.14/27",
+            "B. Deny 0.0.0.0/0 to 10.9.8.14/27, and Permit 10.2.2.0/24 to 10.9.8.14/27, and Permit 10.3.9.0/24 to 10.9.8.14/27",
+            "C. Permit 10.2.2.7/32 to 10.9.8.14/27, and Permit 10.3.9.9/32 to 10.9.8.14/27, and Deny 0.0.0.0/0 to 10.9.8.14/27",
+            "D. Permit 10.2.2.7/32 to 10.9.8.14/27, and Permit 10.3.9.0/24 to 10.9.8.14/27, and Deny 10.9.8.14/27 to 0.0.0.0/0",
           ],
           correct: 2,
           explanation:
@@ -8207,41 +8205,41 @@
         });
 
       // Populate question count options
-function populateQuestionCount() {
-  questionCountSelect.innerHTML = "";
-  const totalQuestions = 624;
-  const acronymQuestions = 78;
-  const nonAcronymQuestions = totalQuestions - acronymQuestions;
-  const questionsPerRange = 78;
-  const ranges = Math.ceil(totalQuestions / questionsPerRange);
+      function populateQuestionCount() {
+        questionCountSelect.innerHTML = "";
+        const totalQuestions = 624;
+        const acronymQuestions = 78;
+        const nonAcronymQuestions = totalQuestions - acronymQuestions;
+        const questionsPerRange = 78;
+        const ranges = Math.ceil(totalQuestions / questionsPerRange);
 
-  // Add "All Questions" option
-  const allQuestionsOption = document.createElement("option");
-  allQuestionsOption.value = "all";
-  allQuestionsOption.textContent = "All Questions";
-  questionCountSelect.appendChild(allQuestionsOption);
+        for (let i = 0; i < ranges; i++) {
+          const startQuestion = i * questionsPerRange + 1;
+          const endQuestion = Math.min(
+            startQuestion + questionsPerRange - 1,
+            totalQuestions
+          );
+          const optionElement = document.createElement("option");
+          optionElement.value = startQuestion;
 
-  for (let i = 0; i < ranges; i++) {
-    const startQuestion = i * questionsPerRange + 1;
-    const endQuestion = Math.min(
-      startQuestion + questionsPerRange - 1,
-      totalQuestions
-    );
-    const optionElement = document.createElement("option");
-    optionElement.value = startQuestion;
+          if (startQuestion === 547) {
+            optionElement.textContent = `Questions ${startQuestion}-${endQuestion} (Acronyms)`;
+          } else {
+            optionElement.textContent = `Questions ${startQuestion}-${endQuestion}`;
+          }
 
-    if (startQuestion === 547) {
-      optionElement.textContent = `Questions ${startQuestion}-${endQuestion} (Acronyms)`;
-    } else {
-      optionElement.textContent = `Questions ${startQuestion}-${endQuestion}`;
-    }
+          questionCountSelect.appendChild(optionElement);
+        }
 
-    questionCountSelect.appendChild(optionElement);
-  }
+        // Add "All Questions" option
+        const allQuestionsOption = document.createElement("option");
+        allQuestionsOption.value = "all";
+        allQuestionsOption.textContent = "All Questions";
+        questionCountSelect.appendChild(allQuestionsOption);
 
-  questionCountSelect.value = questionCountSelect.options[0].value;
-}
-      
+        questionCountSelect.value = questionCountSelect.options[0].value;
+      }
+
       // Populate num questions options
       function populateNumQuestions() {
         numQuestionsSelect.innerHTML = "";
@@ -8273,79 +8271,81 @@ function populateQuestionCount() {
       }
 
       // Start quiz
-document.getElementById("begin-quiz").addEventListener("click", () => {
-  console.log("Starting quiz...");
-  userName = document.getElementById("user-name").value.trim();
-  const password = document.getElementById("user-password").value.trim();
-  const selectedText =
-    questionCountSelect.options[questionCountSelect.selectedIndex].text;
-  const selectedValue =
-    questionCountSelect.options[questionCountSelect.selectedIndex].value;
+      document.getElementById("begin-quiz").addEventListener("click", () => {
+        console.log("Starting quiz...");
+        userName = document.getElementById("user-name").value.trim();
+        const password = document.getElementById("user-password").value.trim();
+        const selectedText =
+          questionCountSelect.options[questionCountSelect.selectedIndex].text;
+        const selectedValue =
+          questionCountSelect.options[questionCountSelect.selectedIndex].value;
 
-  if (selectedValue === "all") {
-    selectedRangeStart = 1;
-    selectedRangeEnd = 546; // Exclude acronym questions
-    totalQuestions = selectedRangeEnd - selectedRangeStart + 1;
-  } else {
-    const range = selectedText.replace("Questions ", "").split("-");
-    selectedRangeStart = parseInt(range[0]);
-    selectedRangeEnd = parseInt(range[1]);
+        if (selectedValue === "all") {
+          selectedRangeStart = 1;
+          selectedRangeEnd = 546; // Exclude acronym questions
+          totalQuestions = selectedRangeEnd - selectedRangeStart + 1;
+        } else {
+          const range = selectedText.replace("Questions ", "").split("-");
+          selectedRangeStart = parseInt(range[0]);
+          selectedRangeEnd = parseInt(range[1]);
 
-    // Get the selected number of questions
-    const numQuestions = document.getElementById("num-questions").value;
-    totalQuestions = numQuestions ? parseInt(numQuestions) : selectedRangeEnd - selectedRangeStart + 1;
-  }
+          // Get the selected number of questions
+          const numQuestions = document.getElementById("num-questions").value;
+          totalQuestions = numQuestions
+            ? parseInt(numQuestions)
+            : selectedRangeEnd - selectedRangeStart + 1;
+        }
 
-  startQuestionIndex = selectedRangeStart - 1;
-  currentQuestion = 0;
-  timeLeft = parseInt(timerDurationSelect.value);
-  startTime = new Date().getTime();
+        startQuestionIndex = selectedRangeStart - 1;
+        currentQuestion = 0;
+        timeLeft = parseInt(timerDurationSelect.value);
+        startTime = new Date().getTime();
 
-  if (userName === "") {
-    alert("Enter your name first!");
-    return;
-  }
+        if (userName === "") {
+          alert("Enter your name first!");
+          return;
+        }
 
-  if (password !== "Bonny1166!") {
-    passwordError.style.display = "block";
-    return;
-  }
+        if (password !== "Bonny1166!") {
+          passwordError.style.display = "block";
+          return;
+        }
 
-  passwordError.style.display = "none";
+        passwordError.style.display = "none";
 
-    // Create an array of question indices within the selected range
-    let questionIndices = [];
-  for (let i = selectedRangeStart - 1; i < selectedRangeEnd; i++) {
-    questionIndices.push(i);
-  }
+        // Create an array of question indices within the selected range
+        let questionIndices = [];
+        for (let i = selectedRangeStart - 1; i < selectedRangeEnd; i++) {
+          questionIndices.push(i);
+        }
 
-  // Shuffle the array of question indices
-  questionIndices = shuffleArray(questionIndices);
+        // Shuffle the array of question indices
+        questionIndices = shuffleArray(questionIndices);
 
-  // Select the specified number of questions
-  questionIndices = questionIndices.slice(0, totalQuestions);
+        // Select the specified number of questions
+        questionIndices = questionIndices.slice(0, totalQuestions);
 
-  // Store the shuffled question indices
-  shuffledQuestionIndices = questionIndices;
+        // Store the shuffled question indices
+        shuffledQuestionIndices = questionIndices;
 
-  // Load first question
-  loadQuestion(currentQuestion);
+        // Load first question
+        loadQuestion(currentQuestion);
 
-  // Start timer
-  startTimer();
+        // Start timer
+        startTimer();
 
-  // Hide name popup and show quiz container
-  namePopup.style.display = "none";
-  quizContainer.style.display = "block";
-  userGreeting.textContent = `Awe, ${userName}!`;
+        // Hide name popup and show quiz container
+        namePopup.style.display = "none";
+        quizContainer.style.display = "block";
+        userGreeting.textContent = `Awe, ${userName}!`;
 
-  // Update attempts display
-  attemptsDisplay.textContent = `Attempts: ${attempts}`;
+        // Update attempts display
+        attemptsDisplay.textContent = `Attempts: ${attempts}`;
 
-  // Update correct and wrong answer displays
-  correctCount.textContent = `Correct: ${correctAnswers}`;
-  wrongCount.textContent = `Wrong: ${wrongAnswers}`;
-});
+        // Update correct and wrong answer displays
+        correctCount.textContent = `Correct: ${correctAnswers}`;
+        wrongCount.textContent = `Wrong: ${wrongAnswers}`;
+      });
 
       // Load question function
       function loadQuestion(index) {
